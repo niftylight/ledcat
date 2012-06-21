@@ -58,6 +58,7 @@
 #include <getopt.h>
 #include <niftyled.h>
 #include "ledcat.h"
+#include "version.h"
 #include "raw.h"
 #include "magick.h"
 
@@ -94,7 +95,7 @@ void _print_loglevels()
 	printf("Valid loglevels:\n\t");
 	NftLoglevel i;
 	for(i = L_MAX+1; i<L_MIN-1; i++)
-		printf("%s ", nft_log_level_to_name(i));
+		printf("%s ", nft_log_level_to_string(i));
         printf("\n\n");
 }
 
@@ -108,7 +109,7 @@ static void _print_help(char *name)
 	       "Valid options:\n"
 	       "\t--help\t\t\t-h\t\tThis help text\n"
                "\t--plugin-help\t\t-p\t\tList of installed plugins + information\n"
-	       "\t--config <file>\t\t-c <file>\tLoad this settings file (~/.ledcat.xml) \n"
+	       "\t--config <file>\t\t-c <file>\tLoad this prefs file (~/.ledcat.xml) \n"
                "\t--dimensions <w>x<h>\t-d <w>x<h>\tDefine width and height of input frames. (auto)\n"
                "\t--big-endian\t\t-b\t\tRAW data is big-endian ordered (false)\n"
                "\t--loop\t\t\t-L\t\tDon't exit after last file but start over with first (false)\n"
@@ -205,7 +206,7 @@ static NftResult _parse_args(int argc, char *argv[])
 			case 'c':
 			{
 				/* save filename for later */
-				strncpy(_c.settingsfile, optarg, sizeof(_c.settingsfile));
+				strncpy(_c.prefsfile, optarg, sizeof(_c.prefsfile));
 				break;
 			}
 
@@ -241,7 +242,7 @@ static NftResult _parse_args(int argc, char *argv[])
 			/** --loglevel */
 			case 'l':
 			{
-				if(!nft_log_level_set(nft_log_level_from_name(optarg)))
+				if(!nft_log_level_set(nft_log_level_from_string(optarg)))
                                 {
                                         _print_loglevels();
                                         return NFT_FAILURE;
@@ -308,7 +309,9 @@ static NftResult _parse_args(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
         /* current configuration */
-        LedSettings *settings = NULL;
+        LedPrefs *p = NULL;
+    	/** current setup */
+    	LedSetup *s = NULL;
         /** list of LED hardware adapters */
         LedHardware *hw = NULL;
         /* input pixel-frame buffer */
@@ -321,7 +324,7 @@ int main(int argc, char *argv[])
         
         
         /* check libniftyled binary version compatibility */
-        LED_CHECK_VERSION
+        NFT_LED_CHECK_VERSION
                 
         /* set default loglevel to INFO */
         nft_log_level_set(L_INFO);
@@ -367,8 +370,8 @@ int main(int argc, char *argv[])
         /* default pixel-format */
         strncpy(_c.pixelformat, "RGB u8", sizeof(_c.pixelformat));
         
-        /* default settings-filename */
-        if(!led_settings_default_filename(_c.settingsfile, sizeof(_c.settingsfile), ".ledcat.xml"))
+        /* default prefs-filename */
+        if(!led_prefs_default_filename(_c.prefsfile, sizeof(_c.prefsfile), ".ledcat.xml"))
                 return -1;
         
 	/* parse commandline arguments */
@@ -378,8 +381,8 @@ int main(int argc, char *argv[])
 
         
 	/* print welcome msg */
-	NFT_LOG(L_INFO, "%s %s (c) D.Hiepler 2006-2011", PACKAGE_NAME, PACKAGE_VERSION);
-	NFT_LOG(L_VERBOSE, "Loglevel: %s", nft_log_level_to_name(nft_log_level_get()));
+	NFT_LOG(L_INFO, "%s %s (c) D.Hiepler 2006-2012", PACKAGE_NAME, ledcat_version_long());
+	NFT_LOG(L_VERBOSE, "Loglevel: %s", nft_log_level_to_string(nft_log_level_get()));
 
 
 #if HAVE_IMAGEMAGICK == 1
@@ -393,19 +396,34 @@ int main(int argc, char *argv[])
                 }
         }
 #endif
-        
-	/* parse settings-file */
-	if(!(settings = led_settings_load(_c.settingsfile)))
-        {
-                NFT_LOG(L_ERROR, "No settings filename given and no default settings found");
-		return -1;
-        }
 
-        
+    	/* initialize preferences context */
+    	if(!(p = led_prefs_init()))
+    		return -1;
+    
+	/* parse prefs-file */
+    	LedPrefsNode *pnode;
+    	if(!(pnode = nft_prefs_node_from_file(p, _c.prefsfile)))
+    	{
+		NFT_LOG(L_ERROR, "No preferences filename given and no default preferences found");
+		goto m_deinit;
+	}
+	
+        /* create setup from prefs-node */
+    	if(!(s = led_prefs_setup_from_node(p, pnode)))
+    	{
+		NFT_LOG(L_ERROR, "No valid setup found in preferences file.");
+		nft_prefs_node_free(pnode);
+		goto m_deinit;
+	}
+
+    	/* free preferences node */
+    	nft_prefs_node_free(pnode);
+    
         /* determine width of input-frames */
         if(!_c.width)
                 /* width of mapped chain */
-                width = led_settings_get_width(settings);
+                width = led_setup_get_width(s);
         else
                 /* use value from cmdline arguments */
                 width = _c.width;
@@ -414,7 +432,7 @@ int main(int argc, char *argv[])
         /* determine height of input-frames */
         if(!_c.height)
                 /* height of mapped chain */
-                height = led_settings_get_height(settings);
+                height = led_setup_get_height(s);
         else
                 height = _c.height;
         
@@ -436,9 +454,16 @@ int main(int argc, char *argv[])
 
 
         /* get first toplevel hardware */
-        if(!(hw = led_settings_hardware_get_first(settings)))
+        if(!(hw = led_setup_get_hardware(s)))
                 goto m_deinit;
-        
+
+        /* initialize hardware */
+	/*if(!(led_hardware_init(hw, ledcount, (LedGreyscaleFormat) format)))
+	{
+		NFT_LOG(L_ERROR, "failed to initialize hardware.");
+                goto m_deinit;
+	}*/
+    
         /* initialize pixel->led mapping */
         if(!led_hardware_refresh_mapping_list(hw))
                 goto m_deinit;
@@ -615,14 +640,14 @@ int main(int argc, char *argv[])
         res = 0;
         
 m_deinit:       
-        /* deinitialize hardware */
-	led_hardware_destroy_list(hw);
-	
+    	/* free setup */
+    	led_setup_destroy(s);
+    
 	/* free frame */
 	led_frame_destroy(frame);
 
         /* destroy config */
-        led_settings_destroy(settings);
+        led_prefs_deinit(p);
 
         /* deinitialize ImageMagick */
         im_deinit(&_c);

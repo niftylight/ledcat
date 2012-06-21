@@ -42,47 +42,31 @@
  */
 
 
-#ifndef _LEDCAT_H
-#define _LEDCAT_H
 
 
-/** global structure to hold various information */
-struct Ledcat
+#include <stdio.h>
+
+
+
+
+/** 
+ * return string holding GIT version. This is done to always reflect the correct
+ * version by supplying the current git version via the -D compiler option
+ */ 
+const char *ledcat_version_git()
 {
-	/** running state (TRUE when running, set to FALSE to break main-loop */
-	bool running;
-	/** name of preferences-file */
-	char prefsfile[1024];
-        /** pixelformat of raw frame */
-        char pixelformat[1024];
-	/** array with filenames to cat */
-	char **files;
-	/** current file descriptor */
-	int fd;
-        /** current stream */
-        FILE *file;
-        /** requested framerate */
-        int fps;
-        /** input frame width (in pixels) */
-        LedFrameCord width;
-        /** input frame height (in pixels) */
-        LedFrameCord height;
-        /** TRUE if raw-input data is big-endian ordered */
-        bool is_big_endian;
-        /** TRUE if we should endlessly loop through files */
-        bool do_loop;
-#if HAVE_IMAGEMAGICK == 1
-        /** TRUE to treat input as raw-data, FALSE to use ImageMagick */
-        bool raw;
-        /** ImageMagick map string */
-        char map[64];
-        /** ImageMagick storage format */
-        StorageType storage;
-        /** ImageMagick wand */
-        MagickWand *mw;
-#endif
-};
+	return ("@PACKAGE_GIT_VERSION@");
+}
 
 
+/**
+ * return long version string
+ */
+const char *ledcat_version_long()
+{
+	static char tmp[128];
+    	snprintf(tmp, sizeof(tmp), "%s-%s", 
+	         "@PACKAGE_VERSION@", ledcat_version_git());
 
-#endif  /** _LEDCAT_H */
+    	return tmp;
+}

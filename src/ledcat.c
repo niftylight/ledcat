@@ -465,7 +465,7 @@ int main(int argc, char *argv[])
 	}*/
     
         /* initialize pixel->led mapping */
-        if(!led_hardware_refresh_mapping_list(hw))
+        if(!led_hardware_list_refresh_mapping(hw))
                 goto m_deinit;
 
         /* precalc memory offsets for actual mapping */
@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
                 goto m_deinit;
         
         /* set correct gain to hardware */
-        if(!led_hardware_refresh_gain_list(hw))
+        if(!led_hardware_list_refresh_gain(hw))
                 goto m_deinit;
         
 #if HAVE_IMAGEMAGICK == 1
@@ -603,14 +603,14 @@ int main(int argc, char *argv[])
                         }
                        
 			/* send frame to hardware(s) */
-                        led_hardware_send_list(hw);
+                        led_hardware_list_send(hw);
 
                         /* delay in respect to fps */
                         if(!led_fps_delay(_c.fps))
                                 break;
                         
 			/* latch hardware */
-                        led_hardware_show_list(hw);
+                        led_hardware_list_show(hw);
 
                         /* save time when frame is displayed */
                         if(!led_fps_sample())

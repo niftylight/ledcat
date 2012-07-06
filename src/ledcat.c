@@ -136,10 +136,10 @@ static void _print_plugin_help()
         nft_log_level_set(L_INFO);
         
         int i;
-        for(i = 0; i < led_hardware_get_plugin_count(); i++)
+        for(i = 0; i < led_hardware_plugin_total_count(); i++)
         {
                 const char *name;
-                if(!(name = led_hardware_get_plugin_family_by_n(i)))
+                if(!(name = led_hardware_plugin_get_family_by_n(i)))
                         continue;
 
                 printf("======================================\n\n");
@@ -149,7 +149,7 @@ static void _print_plugin_help()
                         continue;
                 
                 printf("\tID Example: %s\n",
-                       led_hardware_get_plugin_id_example(h));
+                       led_hardware_plugin_get_id_example(h));
 
                 
                 led_hardware_destroy(h);
@@ -405,7 +405,8 @@ int main(int argc, char *argv[])
     	LedPrefsNode *pnode;
     	if(!(pnode = nft_prefs_node_from_file(p, _c.prefsfile)))
     	{
-		NFT_LOG(L_ERROR, "No preferences filename given and no default preferences found");
+		NFT_LOG(L_ERROR, "Failed to open configfile \"%s\"", 
+		        		_c.prefsfile);
 		goto m_deinit;
 	}
 	
@@ -593,7 +594,7 @@ int main(int argc, char *argv[])
 			
 			/* fill chain of every hardware from frame */
                         LedHardware *h;
-                        for(h = hw; h; h = led_hardware_get_next_sibling(h))
+                        for(h = hw; h; h = led_hardware_list_get_next(h))
                         {
                                 if(!led_chain_fill_from_frame(led_hardware_get_chain(h), frame))
                                 {

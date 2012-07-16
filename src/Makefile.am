@@ -5,7 +5,7 @@ ledcat_SOURCES = \
 	version.c ledcat.c raw.c magick.c
 
 ledcat_CFLAGS = \
-	-Wall \
+	-Wall -Wextra -Werror -Wno-unused-parameter \
 	$(niftyled_CFLAGS) $(ImageMagick_CFLAGS) 
 
 ledcat_LDADD = \

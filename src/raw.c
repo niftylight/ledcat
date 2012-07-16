@@ -58,7 +58,7 @@
 int raw_read_frame(bool *running, char *buf, int fd, size_t size)
 {
 
-        size_t bytes_to_read, bytes_read = 0;
+        ssize_t bytes_to_read, bytes_read = 0;
         
         for(bytes_to_read = size; 
             bytes_to_read > 0;  

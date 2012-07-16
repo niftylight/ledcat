@@ -1,5 +1,5 @@
 # configure.ac 
-# v0.2 - Daniel Hiepler (2010-2011)
+# v0.3 - Daniel Hiepler (2010-2012)
 
 # --------------------------------
 #    initialization

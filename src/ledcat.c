@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
 #else
         int signals[] = { SIGHUP, SIGINT, SIGQUIT, SIGABRT };
 #endif        
-        int i;
+        unsigned int i;
         for(i=0; i<sizeof(signals)/sizeof(int); i++)
         {
             if(signal(signals[i], _exit_signal_handler) == SIG_ERR)
@@ -373,7 +373,8 @@ int main(int argc, char *argv[])
         /* default prefs-filename */
         if(!led_prefs_default_filename(_c.prefsfile, sizeof(_c.prefsfile), ".ledcat.xml"))
                 return -1;
-        
+
+	
 	/* parse commandline arguments */
 	if(!_parse_args(argc, argv))
 		return -1;

@@ -588,7 +588,7 @@ int main(int argc, char *argv[])
                                                led_pixel_format_get_buffer_size(
                                                         led_frame_get_format(frame),
                                                         led_frame_get_width(frame)*led_frame_get_height(frame))) == 0)
-                                        break;
+                                        continue;
 
 #if HAVE_IMAGEMAGICK == 1
                         }

@@ -96,7 +96,12 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 # --------------------------------
 # Arguments for configure-script
 # --------------------------------
-
+AC_ARG_ENABLE(
+        debug,
+                [  --disable-debug         Don't compile for debugging ],
+                [ debug=false ],
+                [ debug=true])
+AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
 
 
 

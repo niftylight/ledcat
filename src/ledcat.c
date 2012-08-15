@@ -109,11 +109,11 @@ static void _print_help(char *name)
 	       "Valid options:\n"
 	       "\t--help\t\t\t-h\t\tThis help text\n"
                "\t--plugin-help\t\t-p\t\tList of installed plugins + information\n"
-	       "\t--config <file>\t\t-c <file>\tLoad this prefs file (~/.ledcat.xml) \n"
-               "\t--dimensions <w>x<h>\t-d <w>x<h>\tDefine width and height of input frames. (auto)\n"
-               "\t--big-endian\t\t-b\t\tRAW data is big-endian ordered (false)\n"
-               "\t--loop\t\t\t-L\t\tDon't exit after last file but start over with first (false)\n"
-               "\t--fps <n>\t\t-F <n>\t\tFramerate to play multiple frames at (25)\n"
+	       "\t--config <file>\t\t-c <file>\tLoad this prefs file [~/.ledcat.xml] \n"
+               "\t--dimensions <w>x<h>\t-d <w>x<h>\tDefine width and height of input frames. [auto]\n"
+               "\t--big-endian\t\t-b\t\tRAW data is big-endian ordered [off]\n"
+               "\t--loop\t\t\t-L\t\tDon't exit after last file but start over with first [off]\n"
+               "\t--fps <n>\t\t-F <n>\t\tFramerate to play multiple frames at. (Ignored when --signal is used) [25]\n"
 #if HAVE_IMAGEMAGICK == 1
                "\t--raw\t\t\t-r\t\tTreat input files as raw-files (false)\n"
 #endif
@@ -183,7 +183,12 @@ static NftResult _parse_args(int argc, char *argv[])
 		{0,0,0,0}
 	};
 
-	while((argument = getopt_long(argc, argv, "hpl:c:d:F:f:bLr", loptions, &index)) >= 0)
+#if HAVE_IMAGEMAGICK == 1
+	const char arglist[] = "hpl:c:d:F:f:bLr";
+#else
+	const char arglist[] = "hpl:c:d:F:f:bL";
+#endif
+	while((argument = getopt_long(argc, argv, arglist, loptions, &index)) >= 0)
 	{
 		
 		switch(argument)
@@ -273,7 +278,7 @@ static NftResult _parse_args(int argc, char *argv[])
                                 _c.is_big_endian = TRUE;
                                 break;
                         }
-                                
+				
 			/* invalid argument */
 			case '?':
 			{
@@ -545,7 +550,8 @@ int main(int argc, char *argv[])
 		{
 			if((_c.fd = open(_c.files[filecount], O_RDONLY)) < 0)
 			{
-				NFT_LOG_PERROR("open()");
+				NFT_LOG(L_ERROR, "Failed to open \"%s\": %s", 
+				        _c.files[filecount], strerror(errno));
 				continue;
 			}
 		}
@@ -572,6 +578,7 @@ int main(int argc, char *argv[])
                                 /* load frame to buffer using ImageMagick */
                                 if(!im_read_frame(&_c, width, height, buf))
                                         break;
+				
                         }
                         else
                         {                               
@@ -605,19 +612,23 @@ int main(int argc, char *argv[])
                         }
                        
 			/* send frame to hardware(s) */
+			NFT_LOG(L_DEBUG, "Sending frame");
                         led_hardware_list_send(hw);
 
-                        /* delay in respect to fps */
-                        if(!led_fps_delay(_c.fps))
-                                break;
-                        
+			/* delay in respect to fps */
+			if(!led_fps_delay(_c.fps))
+				break;
+
 			/* latch hardware */
+			NFT_LOG(L_DEBUG, "Showing frame");
                         led_hardware_list_show(hw);
 
-                        /* save time when frame is displayed */
-                        if(!led_fps_sample())
-                                break;
-                        
+
+			/* save time when frame is displayed */
+			if(!led_fps_sample())
+				break;
+
+
 			/* clear frame */
 			//nft_frame_clear_buffer(frame);
 
@@ -625,7 +636,8 @@ int main(int argc, char *argv[])
 
 
 #if HAVE_IMAGEMAGICK == 1
-                im_close_stream(&_c);
+		if(!_c.raw)
+                	im_close_stream(&_c);
 #else
                 close(_c.fd);
 #endif

@@ -113,7 +113,8 @@ AC_CONFIG_FILES(
 [
 	Makefile
 	src/version.c
-	src/Makefile 
+	src/Makefile
+	gentoo/app-misc/ledcat/ledcat-9999.ebuild
 ])
 AC_OUTPUT
 

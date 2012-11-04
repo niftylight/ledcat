@@ -15,10 +15,11 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-IUSE="debug"
+IUSE="debug imagemagick"
 
 RDEPEND="sys-libs/glibc
-	dev-libs/niftyled"
+	dev-libs/niftyled
+	imagemagick? ( media-gfx/imagemagick )"
 
 DEPEND="${RDEPEND} 
 	virtual/pkgconfig"
@@ -37,7 +38,8 @@ src_unpack()
 src_configure() 
 {
 	econf \
-                $(use_enable debug)
+                $(use_enable debug) \
+                $(use_enable imagemagick)
 }
 
 src_install() {

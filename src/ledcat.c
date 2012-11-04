@@ -1,7 +1,7 @@
 /*
  * ledcat - CLI tool to send greyscale values to LED devices using libniftyled
  * Copyright (C) 2006-2011 Daniel Hiepler <daniel@niftylight.de>
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -134,7 +134,7 @@ static void _print_plugin_help()
         /* save current loglevel */
         NftLoglevel ll_current = nft_log_level_get();
         nft_log_level_set(L_INFO);
-        
+
         int i;
         for(i = 0; i < led_hardware_plugin_total_count(); i++)
         {
@@ -143,17 +143,17 @@ static void _print_plugin_help()
                         continue;
 
                 printf("======================================\n\n");
-                
+
                 LedHardware *h;
                 if(!(h = led_hardware_new("tmp01", name)))
                         continue;
-                
+
                 printf("\tID Example: %s\n",
                        led_hardware_plugin_get_id_example(h));
 
-                
+
                 led_hardware_destroy(h);
-                       
+
         }
 
         /* restore logolevel */
@@ -190,9 +190,9 @@ static NftResult _parse_args(int argc, char *argv[])
 #endif
 	while((argument = getopt_long(argc, argv, arglist, loptions, &index)) >= 0)
 	{
-		
+
 		switch(argument)
-		{			
+		{
 			/* --help */
 			case 'h':
 			{
@@ -221,7 +221,7 @@ static NftResult _parse_args(int argc, char *argv[])
                                 _c.do_loop = TRUE;
                                 break;
                         }
-                                
+
                         /** --dimensions */
                         case 'd':
                         {
@@ -232,7 +232,7 @@ static NftResult _parse_args(int argc, char *argv[])
 				}
                                 break;
                         }
-                                
+
                         /** --fps */
                         case 'F':
                         {
@@ -243,7 +243,7 @@ static NftResult _parse_args(int argc, char *argv[])
 				}
 				break;
                         }
-                                
+
 			/** --loglevel */
 			case 'l':
 			{
@@ -252,7 +252,7 @@ static NftResult _parse_args(int argc, char *argv[])
                                         _print_loglevels();
                                         return NFT_FAILURE;
                                 }
-                                
+
 				break;
 			}
 
@@ -271,14 +271,14 @@ static NftResult _parse_args(int argc, char *argv[])
                                 break;
                         }
 #endif
-                                
+
                         /** --big-endian */
                         case 'b':
                         {
                                 _c.is_big_endian = TRUE;
                                 break;
                         }
-				
+
 			/* invalid argument */
 			case '?':
 			{
@@ -298,8 +298,8 @@ static NftResult _parse_args(int argc, char *argv[])
 
 
 	_c.files = &argv[optind];
-	
-	
+
+
 	return NFT_SUCCESS;
 }
 
@@ -326,11 +326,11 @@ int main(int argc, char *argv[])
         /** height of map */
         LedFrameCord height;
 
-        
-        
+
+
         /* check libniftyled binary version compatibility */
         NFT_LED_CHECK_VERSION
-                
+
         /* set default loglevel to INFO */
         nft_log_level_set(L_INFO);
 
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
         int signals[] = { SIGINT, SIGABRT };
 #else
         int signals[] = { SIGHUP, SIGINT, SIGQUIT, SIGABRT };
-#endif        
+#endif
         unsigned int i;
         for(i=0; i<sizeof(signals)/sizeof(int); i++)
         {
@@ -349,12 +349,12 @@ int main(int argc, char *argv[])
                 return -1;
             }
         }
-	
 
-        
+
+
         /* default result of main() function */
         int res = -1;
-        
+
         /* default fps */
         _c.fps = 25;
 
@@ -365,27 +365,27 @@ int main(int argc, char *argv[])
         /* default handle-input-as-raw */
         _c.raw = FALSE;
 #endif
-        
+
         /* default looping */
         _c.do_loop = FALSE;
-        
+
         /* set "running" flag */
         _c.running = TRUE;
 
         /* default pixel-format */
         strncpy(_c.pixelformat, "RGB u8", sizeof(_c.pixelformat));
-        
+
         /* default prefs-filename */
         if(!led_prefs_default_filename(_c.prefsfile, sizeof(_c.prefsfile), ".ledcat.xml"))
                 return -1;
 
-	
+
 	/* parse commandline arguments */
 	if(!_parse_args(argc, argv))
 		return -1;
 
 
-        
+
 	/* print welcome msg */
 	NFT_LOG(L_INFO, "%s %s (c) D.Hiepler 2006-2012", PACKAGE_NAME, ledcat_version_long());
 	NFT_LOG(L_VERBOSE, "Loglevel: %s", nft_log_level_to_string(nft_log_level_get()));
@@ -406,16 +406,16 @@ int main(int argc, char *argv[])
     	/* initialize preferences context */
     	if(!(p = led_prefs_init()))
     		return -1;
-    
+
 	/* parse prefs-file */
     	LedPrefsNode *pnode;
     	if(!(pnode = led_prefs_node_from_file(_c.prefsfile)))
     	{
-		NFT_LOG(L_ERROR, "Failed to open configfile \"%s\"", 
+		NFT_LOG(L_ERROR, "Failed to open configfile \"%s\"",
 		        		_c.prefsfile);
 		goto m_deinit;
 	}
-	
+
         /* create setup from prefs-node */
     	if(!(s = led_prefs_setup_from_node(p, pnode)))
     	{
@@ -426,7 +426,7 @@ int main(int argc, char *argv[])
 
     	/* free preferences node */
     	led_prefs_node_free(pnode);
-    
+
         /* determine width of input-frames */
         if(!_c.width)
                 /* width of mapped chain */
@@ -435,14 +435,14 @@ int main(int argc, char *argv[])
                 /* use value from cmdline arguments */
                 width = _c.width;
 
-        
+
         /* determine height of input-frames */
         if(!_c.height)
                 /* height of mapped chain */
                 height = led_setup_get_height(s);
         else
                 height = _c.height;
-        
+
 
         /* validate dimensions */
         if(width <= 0 || height <= 0)
@@ -451,9 +451,9 @@ int main(int argc, char *argv[])
                 goto m_deinit;
         }
 
-        
+
 	/* allocate frame (where our pixelbuffer resides) */
-	NFT_LOG(L_INFO, "Allocating frame: %dx%d (%s)", 
+	NFT_LOG(L_INFO, "Allocating frame: %dx%d (%s)",
 	        width, height, _c.pixelformat);
         LedPixelFormat *format = led_pixel_format_from_string(_c.pixelformat);
 	if(!(frame = led_frame_new(width, height, format)))
@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
 		NFT_LOG(L_ERROR, "failed to initialize hardware.");
                 goto m_deinit;
 	}*/
-    
+
         /* initialize pixel->led mapping */
         if(!led_hardware_list_refresh_mapping(hw))
                 goto m_deinit;
@@ -478,11 +478,11 @@ int main(int argc, char *argv[])
         /* precalc memory offsets for actual mapping */
         if(!led_chain_map_from_frame(led_hardware_get_chain(hw), frame))
                 goto m_deinit;
-        
+
         /* set correct gain to hardware */
         if(!led_hardware_list_refresh_gain(hw))
                 goto m_deinit;
-        
+
 #if HAVE_IMAGEMAGICK == 1
         /* determine format that ImageMagick should provide */
         if(!_c.raw)
@@ -491,10 +491,10 @@ int main(int argc, char *argv[])
                 {
                         NFT_LOG(L_ERROR, "Failed to determine valid ImageMagick format");
                         goto m_deinit;
-                }       
+                }
         }
 #endif
-        
+
 	/* do we have at least one filename? */
 	if(!_c.files[0])
 	{
@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
 		goto m_deinit;
 	}
 
-        
+
         /* initially sample time for frame-timing */
         if(!led_fps_sample())
                 goto m_deinit;
@@ -524,7 +524,7 @@ int main(int argc, char *argv[])
                 setitimer(ITIMER_REAL, &timer, NULL);
         }
 #endif
-        
+
         /* get data-buffer of frame to write our pixels to */
         char *buf;
         if(!(buf = led_frame_get_buffer(frame)))
@@ -533,7 +533,7 @@ int main(int argc, char *argv[])
                 goto m_deinit;
         }
 
-        
+
 	/* walk all files (supplied as commandline arguments) and output them */
 	int filecount;
 	for(filecount = 0; _c.files[filecount]; filecount++)
@@ -550,7 +550,7 @@ int main(int argc, char *argv[])
 		{
 			if((_c.fd = open(_c.files[filecount], O_RDONLY)) < 0)
 			{
-				NFT_LOG(L_ERROR, "Failed to open \"%s\": %s", 
+				NFT_LOG(L_ERROR, "Failed to open \"%s\": %s",
 				        _c.files[filecount], strerror(errno));
 				continue;
 			}
@@ -566,7 +566,7 @@ int main(int argc, char *argv[])
 #endif
 
 
-                
+
 		/* output file frame-by-frame */
 		while(_c.running)
 		{
@@ -574,14 +574,14 @@ int main(int argc, char *argv[])
 #if HAVE_IMAGEMAGICK == 1
                         /* use imagemagick to load file if we're not in "raw-mode" */
                         if(!_c.raw)
-                        {                                
+                        {
                                 /* load frame to buffer using ImageMagick */
                                 if(!im_read_frame(&_c, width, height, buf))
                                         break;
-				
+
                         }
                         else
-                        {                               
+                        {
 #endif
                                 /* read raw frame */
                                 if(raw_read_frame(&_c.running, buf, _c.fd,
@@ -593,13 +593,13 @@ int main(int argc, char *argv[])
 #if HAVE_IMAGEMAGICK == 1
                         }
 #endif
-                        
+
                         /* set endianess (flag will be changed when conversion occurs) */
                         led_frame_set_big_endian(frame, _c.is_big_endian);
-                        
+
 			/* print frame for debugging */
 			//nft_frame_buffer_print(frame);
-			
+
 			/* fill chain of every hardware from frame */
                         LedHardware *h;
                         for(h = hw; h; h = led_hardware_list_get_next(h))
@@ -610,7 +610,7 @@ int main(int argc, char *argv[])
                                         break;
                                 }
                         }
-                       
+
 			/* send frame to hardware(s) */
 			NFT_LOG(L_DEBUG, "Sending frame");
                         led_hardware_list_send(hw);
@@ -641,7 +641,7 @@ int main(int argc, char *argv[])
 #else
                 close(_c.fd);
 #endif
-                                
+
                 /* loop endlessly? */
                 if((_c.running) && (!_c.files[filecount+1]) && _c.do_loop)
                 {
@@ -652,19 +652,21 @@ int main(int argc, char *argv[])
 
         /* all ok */
         res = 0;
-        
-m_deinit:       
+
+m_deinit:
     	/* free setup */
     	led_setup_destroy(s);
-    
+
 	/* free frame */
 	led_frame_destroy(frame);
 
         /* destroy config */
         led_prefs_deinit(p);
 
+#if HAVE_IMAGEMAGICK == 1
         /* deinitialize ImageMagick */
         im_deinit(&_c);
-                
+#endif
+
         return res;
 }

@@ -1,21 +1,39 @@
-## Process this file with automake to produce Makefile.in
+#############
+# ledcap Makefile.am
+# v0.4 - (c) Daniel Hiepler (2010-2012)
+
 
 # compile for debugging ?
 if DEBUG
-    OPT_CFLAGS = -O0 -g
-else
-    OPT_CFLAGS = -O2
+    DEBUG_CFLAGS = -DDEBUG
 endif
 
 
 bin_PROGRAMS = ledcat
 
 ledcat_SOURCES = \
-	version.c ledcat.c raw.c magick.c
+	version.c \
+	ledcat.c \
+	raw.c
+
+EXTRA_DIST = \
+	ledcat.h \
+	magick.h \
+	raw.h \
+	version.h
 
 ledcat_CFLAGS = \
 	-Wall -Wextra -Werror -Wno-unused-parameter \
-	$(niftyled_CFLAGS) $(ImageMagick_CFLAGS) $(OPT_CFLAGS)
+	$(niftyled_CFLAGS) \
+	$(DEBUG_CFLAGS)
 
 ledcat_LDADD = \
-	$(niftyled_LIBS) $(ImageMagick_LIBS)
+	$(niftyled_LIBS)
+
+
+if USE_IMAGEMAGICK
+ledcat_SOURCES += magick.c
+ledcat_CFLAGS += $(ImageMagick_CFLAGS)
+ledcat_LDADD += $(ImageMagick_LIBS)
+endif
+

@@ -1,11 +1,12 @@
-# configure.ac 
-# v0.3 - Daniel Hiepler (2010-2012)
+#############
+# ledcat configure.ac
+# v0.4 - (c) Daniel Hiepler (2010-2012)
 
 # --------------------------------
 #    initialization
 # --------------------------------
 
-AC_INIT([ledcat], m4_esyscmd([./version.sh --short]),[http://github.com/niftylight/ledcat/issues], [ledcat], [http://wiki.niftylight.de/AC_PACKAGE_NAME])
+AC_INIT([ledcat], m4_esyscmd([./version --short]),[http://github.com/niftylight/ledcat/issues], [ledcat], [http://wiki.niftylight.de/AC_PACKAGE_NAME])
 AC_COPYRIGHT([Copyright (C) 2006-2012 Daniel Hiepler])
 
 AM_INIT_AUTOMAKE([color-tests dist-bzip2 parallel-tests silent-rules -Wall])
@@ -17,24 +18,27 @@ AC_CONFIG_MACRO_DIR([m4])
 # --------------------------------
 # infos
 PACKAGE_DESCRIPTION="niftyled cat tool"
-AC_SUBST([PACKAGE_DESCRIPTION], [${PACKAGE_DESCRIPTION}], [package description])
-AC_DEFINE_UNQUOTED(PACKAGE_DESCRIPTION, "${PACKAGE_DESCRIPTION}", [package description])
+PACKAGE_DESCRIPTION_LONG="cat like tool to pipe pixel data to LED hardware conveniently"
 
-# versioning (s. version.sh)
-AC_SUBST([PACKAGE_MAJOR_VERSION], m4_esyscmd([./version.sh --major]), [major version])
-AC_SUBST([PACKAGE_MINOR_VERSION], m4_esyscmd([./version.sh --minor]), [minor version])
-AC_SUBST([PACKAGE_MICRO_VERSION], m4_esyscmd([./version.sh --micro]), [micro version])
-AC_SUBST([PACKAGE_GIT_VERSION], m4_esyscmd([./version.sh --git]), [git version])
+AC_SUBST([PACKAGE_DESCRIPTION], [${PACKAGE_DESCRIPTION}], [package description])
+AC_SUBST([PACKAGE_DESCRIPTION_LONG], [${PACKAGE_DESCRIPTION_LONG}], [long package description])
+AC_DEFINE_UNQUOTED(PACKAGE_DESCRIPTION, "${PACKAGE_DESCRIPTION}", [package description])
+AC_DEFINE_UNQUOTED(PACKAGE_DESCRIPTION_LONG, "${PACKAGE_DESCRIPTION_LONG}", [long package description])
+
+# versioning (s. version script
+AC_SUBST([PACKAGE_MAJOR_VERSION], m4_esyscmd([./version --major]), [major version])
+AC_SUBST([PACKAGE_MINOR_VERSION], m4_esyscmd([./version --minor]), [minor version])
+AC_SUBST([PACKAGE_MICRO_VERSION], m4_esyscmd([./version --micro]), [micro version])
+AC_SUBST([PACKAGE_GIT_VERSION], m4_esyscmd([./version --git]), [git version])
 
 
 # --------------------------------
 #    checks for programs
 # --------------------------------
-AC_PROG_CC
 AM_PROG_CC_C_O
 
 PKG_PROG_PKG_CONFIG([0.14])
-if test -z "$PKG_CONFIG"; then
+if test -z "${PKG_CONFIG}"; then
   AC_MSG_ERROR([*** pkg-config not found. See http://www.freedesktop.org/software/pkgconfig/ or check your distribution.])
 fi
 
@@ -45,10 +49,10 @@ fi
 
 AC_SEARCH_LIBS([cposix])
 
-PKG_CHECK_MODULES(ImageMagick, [ImageMagick,MagickWand], [have_imagemagick=1], [AC_MSG_ERROR([You need libxml-2.0 (>= 2.4) + development headers installed])])
-AC_DEFINE_UNQUOTED([HAVE_IMAGEMAGICK], $have_imagemagick, [Define to 1 if you have ImageMagick])
+PKG_CHECK_MODULES(ImageMagick, [ImageMagick,MagickWand], [HAVE_IMAGEMAGICK=1], [HAVE_IMAGEMAGICK=0 ; AC_MSG_RESULT([ImageMagick not found. Will support only RAW pixeldata.])])
 AC_SUBST(ImageMagick_CFLAGS)
 AC_SUBST(ImageMagick_LIBS)
+AM_CONDITIONAL([USE_IMAGEMAGICK], [test $HAVE_IMAGEMAGICK -eq 1])
 
 PKG_CHECK_MODULES(niftyled, [niftyled], [], [AC_MSG_ERROR([You need libniftyled + development headers installed])])
 AC_SUBST(niftyled_CFLAGS)
@@ -98,11 +102,29 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 # --------------------------------
 AC_ARG_ENABLE(
         debug,
-                [  --disable-debug         Don't compile for debugging ],
-                [ debug=false ],
-                [ debug=true])
+		AS_HELP_STRING([--enable-debug], [enable debugging, default: no]),
+		[case "${enableval}" in
+             yes) debug=true ;;
+             no)  debug=false ;;
+             *)   AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+		esac],
+		[debug=false])
 AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
 
+# use ImageMagick to decode pixeldata
+AC_ARG_ENABLE(
+	imagemagick,
+	AS_HELP_STRING([--enable-imagemagick], [enable pixel decoding using ImageMagick]),
+	[ if test x$enableval = xno ; then WANT_IMAGEMAGICK=false ; else if test $HAVE_IMAGEMAGICK -eq 1 ; then WANT_IMAGEMAGICK=true ; else AC_MSG_ERROR([ImageMagick requested but development headers not found.]) ; fi ; fi ],
+	[ WANT_IMAGEMAGICK=true ])
+AM_CONDITIONAL([USE_IMAGEMAGICK], [test "x$WANT_IMAGEMAGICK" = xtrue && test $HAVE_IMAGEMAGICK -eq 1])
+
+
+if test "x$WANT_IMAGEMAGICK" = xtrue && test $HAVE_IMAGEMAGICK -eq 1 ; then
+	MSG_IMAGEMAGICK="enabled"
+else
+	MSG_IMAGEMAGICK="disabled - only supporting RAW pixelformats"
+fi
 
 
 # --------------------------------
@@ -124,9 +146,10 @@ Configure report:
 
     Package.....................:  ${PACKAGE_STRING}
     Description.................:  ${PACKAGE_DESCRIPTION}
-    Revision....................:  ${PACKAGE_GIT_VERSION}   
+    Revision....................:  ${PACKAGE_GIT_VERSION}
     URL.........................:  ${PACKAGE_URL}
     Bugreports..................:  ${PACKAGE_BUGREPORT}
+    ImageMagick.................:  ${MSG_IMAGEMAGICK}
 
     Install prefix..............:  ${prefix}
     C compiler..................:  ${CC}

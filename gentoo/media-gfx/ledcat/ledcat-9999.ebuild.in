@@ -17,8 +17,7 @@ KEYWORDS="~amd64 ~x86"
 
 IUSE="debug imagemagick"
 
-RDEPEND="sys-libs/glibc
-	media-gfx/niftyled
+RDEPEND="media-gfx/niftyled
 	imagemagick? ( media-gfx/imagemagick )"
 
 DEPEND="${RDEPEND} 

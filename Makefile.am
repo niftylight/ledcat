@@ -4,3 +4,5 @@
 
 
 SUBDIRS = src
+
+EXTRA_DIST = gentoo

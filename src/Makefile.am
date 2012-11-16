@@ -33,7 +33,7 @@ ledcat_LDADD = \
 
 if USE_IMAGEMAGICK
 ledcat_SOURCES += magick.c
-ledcat_CFLAGS += $(ImageMagick_CFLAGS)
+ledcat_CFLAGS += $(ImageMagick_CFLAGS) -DHAVE_IMAGEMAGICK=1
 ledcat_LDADD += $(ImageMagick_LIBS)
 endif
 

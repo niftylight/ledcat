@@ -476,8 +476,12 @@ int main(int argc, char *argv[])
                 goto m_deinit;
 
         /* precalc memory offsets for actual mapping */
-        if(!led_chain_map_from_frame(led_hardware_get_chain(hw), frame))
-                goto m_deinit;
+        LedHardware *ch;
+        for(ch = hw; ch; ch = led_hardware_list_get_next(ch))
+        {
+                if(!led_chain_map_from_frame(led_hardware_get_chain(ch), frame))
+                        goto m_deinit;
+        }
 
         /* set correct gain to hardware */
         if(!led_hardware_list_refresh_gain(hw))

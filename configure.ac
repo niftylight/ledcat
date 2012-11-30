@@ -36,7 +36,7 @@ AC_SUBST([PACKAGE_GIT_VERSION], m4_esyscmd([./version --git]), [git version])
 #    checks for programs
 # --------------------------------
 AM_PROG_CC_C_O
-
+AC_PROG_CC_STDC
 PKG_PROG_PKG_CONFIG([0.14])
 if test -z "${PKG_CONFIG}"; then
   AC_MSG_ERROR([*** pkg-config not found. See http://www.freedesktop.org/software/pkgconfig/ or check your distribution.])

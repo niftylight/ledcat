@@ -1,0 +1,16 @@
+Source: @PACKAGE@
+Section: misc
+Priority: extra
+Maintainer: Daniel Hiepler <daniel-ubuntu@niftylight.de>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, libmagickwand-dev, libniftylog-dev, libniftyled-dev
+Standards-Version: 3.9.3
+Homepage: @PACKAGE_URL@
+#Vcs-Git: git://github.com/niftylight/ledcat.git
+#Vcs-Browser: https://github.com/niftylight/ledcat.git
+
+Package: @PACKAGE_NAME@
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, imagemagick, libniftylog1 (>= 0.1.2), libniftyled0 (>= 0.1.0)
+Description: @PACKAGE_DESCRIPTION@
+ @PACKAGE_DESCRIPTION_LONG@

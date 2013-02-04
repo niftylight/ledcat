@@ -14,6 +14,6 @@
 </upstream>
 <use>
   <flag name='debug'>Compile for debugging (don't forget to modify CFLAGS and FEATURES)</flag>
-  <flag name='imagemagick'>Use imagemagick to load & process pixeldata</flag>
+  <flag name='imagemagick'>Use imagemagick to load and process pixeldata</flag>
 </use>
 </pkgmetadata>

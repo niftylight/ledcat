@@ -156,9 +156,12 @@ NftResult im_format(struct Ledcat *c, LedPixelFormat *format)
         /* determine map format for MagickGetImagePixels */
         strncpy(c->map, led_pixel_format_colorspace_to_string(format), sizeof(c->map));
 
-        /* determine storage format for MagickGetImagePixels */
+        /* copy string to tmp buffer */
         char type[16];
         strncpy(type, led_pixel_format_get_component_type(format, 0), sizeof(type));
+	type[sizeof(type)-1] = '\0';
+
+        /* determine storage format for MagickGetImagePixels */
         if(strncmp(type, "u8", sizeof(type)) == 0)
                 c->storage = CharPixel;
         else if(strncmp(type, "u16", sizeof(type)) == 0)

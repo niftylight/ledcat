@@ -225,7 +225,7 @@ static NftResult _parse_args(int argc, char *argv[])
                         /** --dimensions */
                         case 'd':
                         {
-                                if(sscanf(optarg, "%dx%d", (int*) &_c.width, (int*) &_c.height) != 2)
+                                if(sscanf(optarg, "%32dx%32d", (int*) &_c.width, (int*) &_c.height) != 2)
 				{
 					NFT_LOG(L_ERROR, "Invalid dimension \"%s\" (Use something like 320x400)", optarg);
 					return NFT_FAILURE;
@@ -236,7 +236,7 @@ static NftResult _parse_args(int argc, char *argv[])
                         /** --fps */
                         case 'F':
                         {
-                                if(sscanf(optarg, "%d", (int*) &_c.fps) != 1)
+                                if(sscanf(optarg, "%32d", (int*) &_c.fps) != 1)
 				{
 					NFT_LOG(L_ERROR, "Invalid framerate \"%s\" (Use an integer)", optarg);
 					return NFT_FAILURE;
@@ -332,7 +332,12 @@ int main(int argc, char *argv[])
         NFT_LED_CHECK_VERSION
 
         /* set default loglevel to INFO */
-        nft_log_level_set(L_INFO);
+        if(!nft_log_level_set(L_INFO))
+        {
+            fprintf(stderr, "nft_log_level_set() error");
+            return -1;
+        }
+
 
         /* initialize exit handlers */
 #if WIN32

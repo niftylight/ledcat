@@ -49,7 +49,7 @@
 /** global structure to hold various information */
 struct Ledcat
 {
-	/** running state (TRUE when running, set to FALSE to break main-loop */
+	/** running state (true when running, set to false to break main-loop */
 	bool running;
 	/** name of preferences-file */
 	char prefsfile[1024];
@@ -67,14 +67,14 @@ struct Ledcat
         LedFrameCord width;
         /** input frame height (in pixels) */
         LedFrameCord height;
-        /** TRUE if raw-input data is big-endian ordered */
+        /** true if raw-input data is big-endian ordered */
         bool is_big_endian;
-        /** TRUE if we should endlessly loop through files */
+        /** true if we should endlessly loop through files */
         bool do_loop;
-	/** TRUE if caching should be disabled */
+	/** true if caching should be disabled */
 	bool no_caching;
 #if HAVE_IMAGEMAGICK == 1
-        /** TRUE to treat input as raw-data, FALSE to use ImageMagick */
+        /** true to treat input as raw-data, false to use ImageMagick */
         bool raw;
         /** ImageMagick map string */
         char map[64];

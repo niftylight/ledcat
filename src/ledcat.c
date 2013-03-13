@@ -78,7 +78,7 @@ static struct Ledcat _c;
 void _exit_signal_handler(int signal)
 {
 	NFT_LOG(L_INFO, "Exiting...");
-	_c.running = FALSE;
+	_c.running = false;
 }
 
 #if ! WIN32
@@ -221,7 +221,7 @@ static NftResult _parse_args(int argc, char *argv[])
                         /** --loop */
                         case 'L':
                         {
-                                _c.do_loop = TRUE;
+                                _c.do_loop = true;
                                 break;
                         }
 
@@ -270,7 +270,7 @@ static NftResult _parse_args(int argc, char *argv[])
                         /** --raw */
                         case 'r':
                         {
-                                _c.raw = TRUE;
+                                _c.raw = true;
                                 break;
                         }
 #endif
@@ -278,7 +278,7 @@ static NftResult _parse_args(int argc, char *argv[])
                         /** --big-endian */
                         case 'b':
                         {
-                                _c.is_big_endian = TRUE;
+                                _c.is_big_endian = true;
                                 break;
                         }
 
@@ -378,18 +378,18 @@ int main(int argc, char *argv[])
         _c.fps = 25;
 
         /* default endianess */
-        _c.is_big_endian = FALSE;
+        _c.is_big_endian = false;
 
 #if HAVE_IMAGEMAGICK == 1
         /* default handle-input-as-raw */
-        _c.raw = FALSE;
+        _c.raw = false;
 #endif
 	
         /* default looping */
-        _c.do_loop = FALSE;
+        _c.do_loop = false;
 
         /* set "running" flag */
-        _c.running = TRUE;
+        _c.running = true;
 
 	/* use caching by default */
 	_c.no_caching = false;

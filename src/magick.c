@@ -84,12 +84,12 @@ NftResult im_init(struct Ledcat *c)
         {
                 MagickWandGenesis();
                 if(!(c->mw = NewMagickWand()))
-                        return FALSE;
+                        return false;
 
               
         }
 #endif
-        return TRUE;
+        return true;
 }
 
 
@@ -121,11 +121,11 @@ NftResult im_open_stream(struct Ledcat *c)
                 if(!(c->file = fdopen(c->fd, "r")))
                 {
                         NFT_LOG_PERROR("fdopen()");
-                        return FALSE;
+                        return false;
                 }
         }
 #endif
-        return TRUE;
+        return true;
 }
 
 
@@ -177,11 +177,11 @@ NftResult im_format(struct Ledcat *c, LedPixelFormat *format)
         else
         {
                 NFT_LOG(L_ERROR, "Unhandled pixel-format: \"%s\"", type);
-                return FALSE;
+                return false;
         }
 #endif
         
-        return TRUE;
+        return true;
 }
 
 
@@ -201,13 +201,13 @@ NftResult im_read_frame(struct Ledcat *c, size_t width, size_t height, char *buf
         {
                 /* end-of-stream? */
                 if(feof(c->file))
-                        return FALSE;
+                        return false;
                 
                 /* read file */
                 if(!MagickReadImageFile(c->mw, c->file))
                 {
                         im_error(c->mw);
-                        return FALSE;
+                        return false;
                 }
 
                 /* reset iterator in case we read more than one file */
@@ -218,7 +218,7 @@ NftResult im_read_frame(struct Ledcat *c, size_t width, size_t height, char *buf
         /* turn possible alpha-channel black */
         /*PixelWand *pw;
         if(!(pw = NewPixelWand()))
-                return FALSE;
+                return false;
         
         PixelSetColor(pw, "black");
         MagickSetImageBackgroundColor(c->mw, pw);
@@ -228,7 +228,7 @@ NftResult im_read_frame(struct Ledcat *c, size_t width, size_t height, char *buf
         if(!(MagickExportImagePixels(c->mw, 0, 0, width, height, c->map, c->storage, buf)))
         {
                 im_error(c->mw);
-                return FALSE;
+                return false;
         }
         
         /* free resources */
@@ -237,5 +237,5 @@ NftResult im_read_frame(struct Ledcat *c, size_t width, size_t height, char *buf
 
 #endif
         
-        return TRUE;
+        return true;
 }

@@ -14,10 +14,12 @@ bin_PROGRAMS = ledcat
 ledcat_SOURCES = \
 	version.c \
 	ledcat.c \
+	cache.c \
 	raw.c
 
 EXTRA_DIST = \
 	ledcat.h \
+	cache.h \
 	magick.h \
 	raw.h \
 	version.h

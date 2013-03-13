@@ -41,50 +41,33 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#ifndef _CACHE_H
+#define _CACHE_H
 
-#ifndef _LEDCAT_H
-#define _LEDCAT_H
 
-
-/** global structure to hold various information */
-struct Ledcat
+/** one cached frame */
+typedef struct CachedFrame
 {
-	/** running state (TRUE when running, set to FALSE to break main-loop */
-	bool running;
-	/** name of preferences-file */
-	char prefsfile[1024];
-        /** pixelformat of raw frame */
-        char pixelformat[1024];
-	/** array with filenames to cat */
-	char **files;
-	/** current file descriptor */
-	int fd;
-        /** current stream */
-        FILE *file;
-        /** requested framerate */
-        int fps;
-        /** input frame width (in pixels) */
-        LedFrameCord width;
-        /** input frame height (in pixels) */
-        LedFrameCord height;
-        /** TRUE if raw-input data is big-endian ordered */
-        bool is_big_endian;
-        /** TRUE if we should endlessly loop through files */
-        bool do_loop;
-	/** TRUE if caching should be disabled */
-	bool no_caching;
-#if HAVE_IMAGEMAGICK == 1
-        /** TRUE to treat input as raw-data, FALSE to use ImageMagick */
-        bool raw;
-        /** ImageMagick map string */
-        char map[64];
-        /** ImageMagick storage format */
-        StorageType storage;
-        /** ImageMagick wand */
-        MagickWand *mw;
-#endif
-};
+	/** next cached frame */
+	struct CachedFrame *next;
+	/** filename of this frame */
+	char filename[255];
+	/** size of raw frame data in bytes */
+	size_t size;
+	/** raw frame */
+	void *frame;
+}CachedFrame;
+
+/** main structure to hold all cached frames */
+typedef struct _Cache Cache;
 
 
 
-#endif  /** _LEDCAT_H */
+void 		cache_disable(Cache *c, bool disabled);
+NftResult 	cache_frame_put(Cache *c, void *frame, size_t size, char *filename);
+CachedFrame *   cache_frame_get(Cache *c, char *filename);
+Cache *		cache_new();
+void		cache_destroy(Cache *c);
+
+
+#endif /** _CACHE_H */

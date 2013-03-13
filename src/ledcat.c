@@ -58,6 +58,7 @@
 #include <getopt.h>
 #include <niftyled.h>
 #include "ledcat.h"
+#include "cache.h"
 #include "version.h"
 #include "raw.h"
 #include "magick.h"
@@ -109,7 +110,8 @@ static void _print_help(char *name)
 	       "Valid options:\n"
 	       "\t--help\t\t\t-h\t\tThis help text\n"
                "\t--plugin-help\t\t-p\t\tList of installed plugins + information\n"
-	       "\t--config <file>\t\t-c <file>\tLoad this prefs file [~/.ledcat.xml] \n"
+	       "\t--config <file>\t\t-c <file>\tLoad this prefs file [~/.ledcat.xml]\n"
+	       "\t--no-cache\t\t-n\t\tDon't use frame cache [off]\n"
                "\t--dimensions <w>x<h>\t-d <w>x<h>\tDefine width and height of input frames. [auto]\n"
                "\t--big-endian\t\t-b\t\tRAW data is big-endian ordered [off]\n"
                "\t--loop\t\t\t-L\t\tDon't exit after last file but start over with first [off]\n"
@@ -177,6 +179,7 @@ static NftResult _parse_args(int argc, char *argv[])
                 {"format", required_argument, 0, 'f'},
                 {"big-endian", no_argument, 0, 'b'},
                 {"loop", no_argument, 0, 'L'},
+		{"no-cache", no_argument, 0, 'n'},
 #if HAVE_IMAGEMAGICK == 1
                 {"raw", no_argument, 0, 'r'},
 #endif
@@ -184,9 +187,9 @@ static NftResult _parse_args(int argc, char *argv[])
 	};
 
 #if HAVE_IMAGEMAGICK == 1
-	const char arglist[] = "hpl:c:d:F:f:bLr";
+	const char arglist[] = "hpl:c:d:F:f:bLnr";
 #else
-	const char arglist[] = "hpl:c:d:F:f:bL";
+	const char arglist[] = "hpl:c:d:F:f:bLn";
 #endif
 	while((argument = getopt_long(argc, argv, arglist, loptions, &index)) >= 0)
 	{
@@ -279,6 +282,14 @@ static NftResult _parse_args(int argc, char *argv[])
                                 break;
                         }
 
+
+			/** --no-cache */
+			case 'n':
+			{
+				_c.no_caching = true;
+				break;
+			}
+				
 			/* invalid argument */
 			case '?':
 			{
@@ -287,6 +298,7 @@ static NftResult _parse_args(int argc, char *argv[])
 				return NFT_FAILURE;
 			}
 
+				
 			/* unhandled arguments */
 			default:
 			{
@@ -315,17 +327,19 @@ int main(int argc, char *argv[])
 {
         /* current configuration */
         LedPrefs *p = NULL;
-    	/** current setup */
+    	/* current setup */
     	LedSetup *s = NULL;
-        /** list of LED hardware adapters */
+        /* list of LED hardware adapters */
         LedHardware *hw = NULL;
         /* input pixel-frame buffer */
         LedFrame *frame = NULL;
-        /** width of map */
+        /* width of map */
         LedFrameCord width;
-        /** height of map */
+        /* height of map */
         LedFrameCord height;
-
+	/* frame cache */
+	Cache *cache = NULL;
+	
 
 
         /* check libniftyled binary version compatibility */
@@ -370,13 +384,16 @@ int main(int argc, char *argv[])
         /* default handle-input-as-raw */
         _c.raw = FALSE;
 #endif
-
+	
         /* default looping */
         _c.do_loop = FALSE;
 
         /* set "running" flag */
         _c.running = TRUE;
 
+	/* use caching by default */
+	_c.no_caching = false;
+	
         /* default pixel-format */
         strncpy(_c.pixelformat, "RGB u8", sizeof(_c.pixelformat));
 
@@ -469,13 +486,6 @@ int main(int argc, char *argv[])
         if(!(hw = led_setup_get_hardware(s)))
                 goto m_deinit;
 
-        /* initialize hardware */
-	/*if(!(led_hardware_init(hw, ledcount, (LedGreyscaleFormat) format)))
-	{
-		NFT_LOG(L_ERROR, "failed to initialize hardware.");
-                goto m_deinit;
-	}*/
-
         /* initialize pixel->led mapping */
         if(!led_hardware_list_refresh_mapping(hw))
                 goto m_deinit;
@@ -534,6 +544,7 @@ int main(int argc, char *argv[])
         }
 #endif
 
+	
         /* get data-buffer of frame to write our pixels to */
         char *buf;
         if(!(buf = led_frame_get_buffer(frame)))
@@ -543,6 +554,21 @@ int main(int argc, char *argv[])
         }
 
 
+	/* initialize frame cache */	
+	if(!(cache = cache_new()))
+	{
+		NFT_LOG(L_ERROR, "Failed to initialize frame cache");
+		goto m_deinit;
+	}
+
+	/* cache disabled by commandline */
+	if(_c.no_caching)
+		cache_disable(cache, true);
+
+
+
+
+	
 	/* walk all files (supplied as commandline arguments) and output them */
 	int filecount;
 	for(filecount = 0; _c.files[filecount]; filecount++)
@@ -550,29 +576,48 @@ int main(int argc, char *argv[])
 
 		NFT_LOG(L_VERBOSE, "Getting pixels from \"%s\"", _c.files[filecount]);
 
-		/* open file */
-		if(_c.files[filecount][0] == '-' && strlen(_c.files[filecount]) == 1)
+		
+		/* check if file is already cached */
+		CachedFrame *f;
+		bool cached_frame_found;
+		
+		if((f = cache_frame_get(cache, _c.files[filecount])))
 		{
-			_c.fd = STDIN_FILENO;
+			/* copy frame to buffer */
+			memcpy(buf, f->frame, f->size);
+
+			/* mark current frame as cached */
+			cached_frame_found = true;
 		}
 		else
 		{
-			if((_c.fd = open(_c.files[filecount], O_RDONLY)) < 0)
+			/* current frame not found in cache */
+			cached_frame_found = false;
+			
+			/* open file */
+			if(_c.files[filecount][0] == '-' && strlen(_c.files[filecount]) == 1)
 			{
-				NFT_LOG(L_ERROR, "Failed to open \"%s\": %s",
-				        _c.files[filecount], strerror(errno));
-				continue;
+				_c.fd = STDIN_FILENO;
 			}
-		}
+			else
+			{
+				if((_c.fd = open(_c.files[filecount], O_RDONLY)) < 0)
+				{
+					NFT_LOG(L_ERROR, "Failed to open \"%s\": %s",
+						_c.files[filecount], strerror(errno));
+					continue;
+				}
+			}
 
 #if HAVE_IMAGEMAGICK == 1
-                /** initialize stream for ImageMagick */
-                if(!_c.raw)
-                {
-                        if(!(im_open_stream(&_c)))
-                                continue;
-                }
+			/** initialize stream for ImageMagick */
+			if(!_c.raw)
+			{
+				if(!(im_open_stream(&_c)))
+					continue;
+			}
 #endif
+		}
 
 
 
@@ -580,49 +625,58 @@ int main(int argc, char *argv[])
 		while(_c.running)
 		{
 
+			if(!cached_frame_found)
+			{
 #if HAVE_IMAGEMAGICK == 1
-                        /* use imagemagick to load file if we're not in "raw-mode" */
-                        if(!_c.raw)
-                        {
-                                /* load frame to buffer using ImageMagick */
-                                if(!im_read_frame(&_c, width, height, buf))
-                                        break;
+				/* use imagemagick to load file if we're not in "raw-mode" */
+				if(!_c.raw)
+				{
+					/* load frame to buffer using ImageMagick */
+					if(!im_read_frame(&_c, width, height, buf))
+						break;
 
-                        }
-                        else
-                        {
+				}
+				else
+				{
 #endif
-                                /* read raw frame */
-                                if(raw_read_frame(&_c.running, buf, _c.fd,
-                                               led_pixel_format_get_buffer_size(
-                                                        led_frame_get_format(frame),
-                                                        led_frame_get_width(frame)*led_frame_get_height(frame))) == 0)
-                                        continue;
+					/* read raw frame */
+					if(raw_read_frame(&_c.running, buf, _c.fd,
+						       led_pixel_format_get_buffer_size(
+								led_frame_get_format(frame),
+								led_frame_get_width(frame)*led_frame_get_height(frame))) == 0)
+						continue;
 
 #if HAVE_IMAGEMAGICK == 1
-                        }
+				}
 #endif
 
-                        /* set endianess (flag will be changed when conversion occurs) */
-                        led_frame_set_big_endian(frame, _c.is_big_endian);
+				/* cache frame */
+				if(!(cache_frame_put(cache, buf, led_frame_get_buffersize(frame), _c.files[filecount])))
+				{
+					NFT_LOG(L_ERROR, "Failed to cache frame \"%s\"", _c.files[filecount]);
+					break;
+				}
 
-			/* print frame for debugging */
-			//nft_frame_buffer_print(frame);
+			}
+
+						
+			/* set endianess (flag will be changed when conversion occurs) */
+			led_frame_set_big_endian(frame, _c.is_big_endian);
 
 			/* fill chain of every hardware from frame */
-                        LedHardware *h;
-                        for(h = hw; h; h = led_hardware_list_get_next(h))
-                        {
-                                if(!led_chain_fill_from_frame(led_hardware_get_chain(h), frame))
-                                {
-                                        NFT_LOG(L_ERROR, "Error while mapping frame");
-                                        break;
-                                }
-                        }
+			LedHardware *h;
+			for(h = hw; h; h = led_hardware_list_get_next(h))
+			{
+				if(!led_chain_fill_from_frame(led_hardware_get_chain(h), frame))
+				{
+					NFT_LOG(L_ERROR, "Error while mapping frame");
+					break;
+				}
+			}
 
 			/* send frame to hardware(s) */
 			NFT_LOG(L_DEBUG, "Sending frame");
-                        led_hardware_list_send(hw);
+			led_hardware_list_send(hw);
 
 			/* delay in respect to fps */
 			if(!led_fps_delay(_c.fps))
@@ -630,27 +684,34 @@ int main(int argc, char *argv[])
 
 			/* latch hardware */
 			NFT_LOG(L_DEBUG, "Showing frame");
-                        led_hardware_list_show(hw);
+			led_hardware_list_show(hw);
 
 
 			/* save time when frame is displayed */
 			if(!led_fps_sample())
 				break;
 
-
-			/* clear frame */
-			//nft_frame_clear_buffer(frame);
-
+			/* if frame is from cache, there are no more frames 
+			   since this can't be a stream */
+			if(cached_frame_found)
+				break;
+			
 		}
 
-
+		/* close file if not from cache */
+		if(!cached_frame_found)
+		{
 #if HAVE_IMAGEMAGICK == 1
-		if(!_c.raw)
-                	im_close_stream(&_c);
+			if(!_c.raw)
+				im_close_stream(&_c);
 #else
-                close(_c.fd);
+			close(_c.fd);
 #endif
-
+		}
+		
+		/* reset flag */
+		cached_frame_found = false;
+		
                 /* loop endlessly? */
                 if((_c.running) && (!_c.files[filecount+1]) && _c.do_loop)
                 {
@@ -659,10 +720,15 @@ int main(int argc, char *argv[])
                 }
 	}
 
+	
         /* all ok */
         res = 0;
 
+	
 m_deinit:
+	/* free frame cache */
+	cache_destroy(cache);
+		
     	/* free setup */
     	led_setup_destroy(s);
 

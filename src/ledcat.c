@@ -343,13 +343,14 @@ int main(int argc, char *argv[])
 
 
         /* check libniftyled binary version compatibility */
-        NFT_LED_CHECK_VERSION
+        if(!NFT_LED_CHECK_VERSION)
+		return EXIT_FAILURE;
 
         /* set default loglevel to INFO */
         if(!nft_log_level_set(L_INFO))
         {
             fprintf(stderr, "nft_log_level_set() error");
-            return -1;
+            return EXIT_FAILURE;
         }
 
 
@@ -365,14 +366,11 @@ int main(int argc, char *argv[])
             if(signal(signals[i], _exit_signal_handler) == SIG_ERR)
             {
                 NFT_LOG_PERROR("signal()");
-                return -1;
+                return EXIT_FAILURE;
             }
         }
 
 
-
-        /* default result of main() function */
-        int res = -1;
 
         /* default fps */
         _c.fps = 25;
@@ -399,12 +397,12 @@ int main(int argc, char *argv[])
 
         /* default prefs-filename */
         if(!led_prefs_default_filename(_c.prefsfile, sizeof(_c.prefsfile), ".ledcat.xml"))
-                return -1;
+                return EXIT_FAILURE;
 
 
 	/* parse commandline arguments */
 	if(!_parse_args(argc, argv))
-		return -1;
+		return EXIT_FAILURE;
 
 
 
@@ -420,15 +418,19 @@ int main(int argc, char *argv[])
                 if(!im_init(&_c))
                 {
                         NFT_LOG(L_ERROR, "Failed to initialize ImageMagick");
-                        return -1;
+                        return EXIT_FAILURE;
                 }
         }
 #endif
 
+	/* default result of main() function */
+        int res = EXIT_FAILURE;
+	
     	/* initialize preferences context */
     	if(!(p = led_prefs_init()))
-    		return -1;
+    		goto m_deinit;
 
+	
 	/* parse prefs-file */
     	LedPrefsNode *pnode;
     	if(!(pnode = led_prefs_node_from_file(_c.prefsfile)))
@@ -722,7 +724,7 @@ int main(int argc, char *argv[])
 
 	
         /* all ok */
-        res = 0;
+        res = EXIT_SUCCESS;
 
 	
 m_deinit:

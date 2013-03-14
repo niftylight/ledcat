@@ -49,39 +49,39 @@
 /** global structure to hold various information */
 struct Ledcat
 {
-	/** running state (true when running, set to false to break main-loop */
-	bool running;
-	/** name of preferences-file */
-	char prefsfile[1024];
+        /** running state (true when running, set to false to break main-loop */
+        bool                            running;
+        /** name of preferences-file */
+        char                            prefsfile[1024];
         /** pixelformat of raw frame */
-        char pixelformat[1024];
-	/** array with filenames to cat */
-	char **files;
-	/** current file descriptor */
-	int fd;
+        char                            pixelformat[1024];
+        /** array with filenames to cat */
+        char                          **files;
+        /** current file descriptor */
+        int                             fd;
         /** current stream */
-        FILE *file;
+        FILE                           *file;
         /** requested framerate */
-        int fps;
+        int                             fps;
         /** input frame width (in pixels) */
-        LedFrameCord width;
+        LedFrameCord                    width;
         /** input frame height (in pixels) */
-        LedFrameCord height;
+        LedFrameCord                    height;
         /** true if raw-input data is big-endian ordered */
-        bool is_big_endian;
+        bool                            is_big_endian;
         /** true if we should endlessly loop through files */
-        bool do_loop;
-	/** true if caching should be disabled */
-	bool no_caching;
+        bool                            do_loop;
+        /** true if caching should be disabled */
+        bool                            no_caching;
 #if HAVE_IMAGEMAGICK == 1
         /** true to treat input as raw-data, false to use ImageMagick */
-        bool raw;
+        bool                            raw;
         /** ImageMagick map string */
-        char map[64];
+        char                            map[64];
         /** ImageMagick storage format */
-        StorageType storage;
+        StorageType                     storage;
         /** ImageMagick wand */
-        MagickWand *mw;
+        MagickWand                     *mw;
 #endif
 };
 

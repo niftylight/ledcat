@@ -48,26 +48,26 @@
 /** one cached frame */
 typedef struct CachedFrame
 {
-	/** next cached frame */
-	struct CachedFrame *next;
-	/** filename of this frame */
-	char filename[255];
-	/** size of raw frame data in bytes */
-	size_t size;
-	/** raw frame */
-	void *frame;
-}CachedFrame;
+        /** next cached frame */
+        struct CachedFrame             *next;
+        /** filename of this frame */
+        char                            filename[255];
+        /** size of raw frame data in bytes */
+        size_t                          size;
+        /** raw frame */
+        void                           *frame;
+} CachedFrame;
 
 /** main structure to hold all cached frames */
-typedef struct _Cache Cache;
+typedef struct _Cache           Cache;
 
 
 
-void 		cache_disable(Cache *c, bool disabled);
-NftResult 	cache_frame_put(Cache *c, void *frame, size_t size, char *filename);
-CachedFrame *   cache_frame_get(Cache *c, char *filename);
-Cache *		cache_new();
-void		cache_destroy(Cache *c);
+void                            cache_disable(Cache * c, bool disabled);
+NftResult                       cache_frame_put(Cache * c, void *frame, size_t size, char *filename);
+CachedFrame                    *cache_frame_get(Cache * c, char *filename);
+Cache                          *cache_new();
+void                            cache_destroy(Cache * c);
 
 
 #endif /** _CACHE_H */

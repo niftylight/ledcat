@@ -45,7 +45,7 @@
 #define _RAW_H
 
 
-int     raw_read_frame(bool *running, char *buf, int fd, size_t size);
+int                             raw_read_frame(bool * running, char *buf, int fd, size_t size);
 
 
 

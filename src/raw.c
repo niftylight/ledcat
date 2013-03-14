@@ -55,30 +55,30 @@
 /**
  * read a complete raw pixel-frame
  */
-int raw_read_frame(bool *running, char *buf, int fd, size_t size)
+int raw_read_frame(bool * running, char *buf, int fd, size_t size)
 {
 
         ssize_t bytes_to_read, bytes_read = 0;
-        
-        for(bytes_to_read = size; 
-            bytes_to_read > 0;  
-            bytes_to_read -= bytes_read)
-        {		
+
+        for(bytes_to_read = size;
+            bytes_to_read > 0; bytes_to_read -= bytes_read)
+        {
                 /* read from stdin? */
-                //~ if(fd == STDIN_FILENO)
-                //~ {
-                        //~ /* prepare stuff for select() */
-                        //~ fd_set fds;
-                        //~ struct timeval tv;
-                        //~ FD_ZERO(&fds);
-                        //~ FD_SET(fd, &fds);
-                        //~ tv.tv_sec = 0;
-                        //~ tv.tv_usec = 500;
-                        
-                        //~ /* wait for incoming data */
-                        //~ while(*running && (select(1, &fds, NULL, NULL, &tv) == 0));
-                //~ }
-                                                
+                // ~ if(fd == STDIN_FILENO)
+                // ~ {
+                // ~ /* prepare stuff for select() */
+                // ~ fd_set fds;
+                // ~ struct timeval tv;
+                // ~ FD_ZERO(&fds);
+                // ~ FD_SET(fd, &fds);
+                // ~ tv.tv_sec = 0;
+                // ~ tv.tv_usec = 500;
+
+                // ~ /* wait for incoming data */
+                // ~ while(*running && (select(1, &fds, NULL, NULL, &tv) ==
+                // 0));
+                // ~ }
+
                 /* break loop if we're not running anymore */
                 if(!*running)
                         break;
@@ -92,8 +92,8 @@ int raw_read_frame(bool *running, char *buf, int fd, size_t size)
 
                 /* end of file? */
                 if(fd != STDIN_FILENO && bytes_read == 0)
-                	break;
-                                
+                        break;
+
                 buf += bytes_read;
         }
 

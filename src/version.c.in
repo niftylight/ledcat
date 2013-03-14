@@ -52,10 +52,10 @@
 /** 
  * return string holding GIT version. This is done to always reflect the correct
  * version by supplying the current git version via the -D compiler option
- */ 
+ */
 const char *ledcat_version_git()
 {
-	return ("@PACKAGE_GIT_VERSION@");
+        return ("@PACKAGE_GIT_VERSION@");
 }
 
 
@@ -64,9 +64,9 @@ const char *ledcat_version_git()
  */
 const char *ledcat_version_long()
 {
-	static char tmp[128];
-    	snprintf(tmp, sizeof(tmp), "%s-%s", 
-	         "@PACKAGE_VERSION@", ledcat_version_git());
+        static char tmp[128];
+        snprintf(tmp, sizeof(tmp), "%s-%s",
+                 "@PACKAGE_VERSION@", ledcat_version_git());
 
-    	return tmp;
+        return tmp;
 }

@@ -45,16 +45,16 @@
 #define _MAGICK_H
 
 #if HAVE_IMAGEMAGICK != 1
-typedef void MagickWand;
+typedef void                    MagickWand;
 #endif
 
-void                 im_error(MagickWand *wand);
-NftResult       im_init(struct Ledcat *c);
-void            im_deinit(struct Ledcat *c);
-NftResult       im_format(struct Ledcat *c, LedPixelFormat *format);
-NftResult       im_open_stream(struct Ledcat *c);
-void            im_close_stream(struct Ledcat *c);
-NftResult       im_read_frame(struct Ledcat *c, size_t width, size_t height, char *buf);
+void                            im_error(MagickWand * wand);
+NftResult                       im_init(struct Ledcat *c);
+void                            im_deinit(struct Ledcat *c);
+NftResult                       im_format(struct Ledcat *c, LedPixelFormat * format);
+NftResult                       im_open_stream(struct Ledcat *c);
+void                            im_close_stream(struct Ledcat *c);
+NftResult                       im_read_frame(struct Ledcat *c, size_t width, size_t height, char *buf);
 
 
 #endif  /** _MAGICK_H */

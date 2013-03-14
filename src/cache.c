@@ -49,12 +49,12 @@
 /** cache descriptor */
 struct _Cache
 {
-	/** amount of frames in cache */
-	size_t frames;
-	/** first cached frame */
-	CachedFrame *first;
-	/** true if caching is disabled */
-	bool disabled;
+        /** amount of frames in cache */
+        size_t frames;
+        /** first cached frame */
+        CachedFrame *first;
+        /** true if caching is disabled */
+        bool disabled;
 };
 
 
@@ -65,10 +65,11 @@ struct _Cache
  * @param c a cache acquired by cache_new()
  * @param disabled set to true if caching should be disabled, false if enabled
  */
-void cache_disable(Cache *c, bool disabled)
+void cache_disable(Cache * c, bool disabled)
 {
-	NFT_LOG(L_DEBUG, "%s frame cache", disabled ? "Disabling" : "Enabling");
-	c->disabled = disabled;
+        NFT_LOG(L_DEBUG, "%s frame cache",
+                disabled ? "Disabling" : "Enabling");
+        c->disabled = disabled;
 }
 
 
@@ -81,48 +82,49 @@ void cache_disable(Cache *c, bool disabled)
  * @param filename the filename of the frame (will be truncated to 255 bytes)
  * @result NFT_SUCCESS or NFT_FAILURE
  */
-NftResult cache_frame_put(Cache *c, void *frame, size_t size, char *filename)
+NftResult cache_frame_put(Cache * c, void *frame, size_t size, char *filename)
 {
-	if(c->disabled)
-		return NFT_SUCCESS;
-	
-	/* allocate new CachedFrame */
-	CachedFrame *f;
-	if(!(f = calloc(1, sizeof(CachedFrame))))
-		return NFT_FAILURE;
-	
-	if(!(f->frame = malloc(size)))
-	{
-		free(f);
-		return NFT_FAILURE;
-	}
+        if(c->disabled)
+                return NFT_SUCCESS;
 
-	/* copy raw frame data */
-	memcpy(f->frame, frame, size);
+        /* allocate new CachedFrame */
+        CachedFrame *f;
+        if(!(f = calloc(1, sizeof(CachedFrame))))
+                return NFT_FAILURE;
 
-	/* store size */
-	f->size = size;
+        if(!(f->frame = malloc(size)))
+        {
+                free(f);
+                return NFT_FAILURE;
+        }
 
-	/* copy filename */
-	strncpy(f->filename, filename, sizeof(f->filename));
-	
-	/* seek to last frame in cache */
-	if(!c->first)
-	{
-		c->first = f;
-	}
-	else
-	{
-		CachedFrame *l;
-		for(l = c->first; l->next; l = l->next);
-		l->next = f;
-	}
+        /* copy raw frame data */
+        memcpy(f->frame, frame, size);
 
-	/* increase counter */
-	c->frames++;
-	
-	NFT_LOG(L_DEBUG, "Frame \"%s\" cached (%d frames in cache)", filename, c->frames);
-	return NFT_SUCCESS;
+        /* store size */
+        f->size = size;
+
+        /* copy filename */
+        strncpy(f->filename, filename, sizeof(f->filename));
+
+        /* seek to last frame in cache */
+        if(!c->first)
+        {
+                c->first = f;
+        }
+        else
+        {
+                CachedFrame *l;
+                for(l = c->first; l->next; l = l->next);
+                l->next = f;
+        }
+
+        /* increase counter */
+        c->frames++;
+
+        NFT_LOG(L_DEBUG, "Frame \"%s\" cached (%d frames in cache)", filename,
+                c->frames);
+        return NFT_SUCCESS;
 }
 
 
@@ -133,22 +135,22 @@ NftResult cache_frame_put(Cache *c, void *frame, size_t size, char *filename)
  * @param filename the filname of the frame to get
  * @result pointer to raw frame data or NULL
  */
-CachedFrame *cache_frame_get(Cache *c, char *filename)
+CachedFrame *cache_frame_get(Cache * c, char *filename)
 {
-	if(c->disabled)
-		return NULL;
-	
-	for(CachedFrame *f = c->first; f; f = f->next)
-	{
-		if(strcmp(filename, f->filename) != 0)
-			continue;
+        if(c->disabled)
+                return NULL;
 
-		NFT_LOG(L_DEBUG, "Frame \"%s\" found in cache", filename);
-		return f;
-	}
+        for(CachedFrame * f = c->first; f; f = f->next)
+        {
+                if(strcmp(filename, f->filename) != 0)
+                        continue;
 
-	NFT_LOG(L_DEBUG, "Frame \"%s\" not found in cache", filename);
-	return NULL;
+                NFT_LOG(L_DEBUG, "Frame \"%s\" found in cache", filename);
+                return f;
+        }
+
+        NFT_LOG(L_DEBUG, "Frame \"%s\" not found in cache", filename);
+        return NULL;
 }
 
 
@@ -159,13 +161,13 @@ CachedFrame *cache_frame_get(Cache *c, char *filename)
  */
 Cache *cache_new()
 {
-	NFT_LOG(L_DEBUG, "creating new frame cache");
-	
-	Cache *n = calloc(1, sizeof(Cache));
+        NFT_LOG(L_DEBUG, "creating new frame cache");
 
-	n->disabled = false;
-	
-	return n;
+        Cache *n = calloc(1, sizeof(Cache));
+
+        n->disabled = false;
+
+        return n;
 }
 
 
@@ -174,20 +176,20 @@ Cache *cache_new()
  *
  * @param c a cache acquired by cache_new()
  */
-void cache_destroy(Cache *c)
+void cache_destroy(Cache * c)
 {
-	/* free all cached frames */
-	CachedFrame *a = c->first;
-	while(a)
-	{
-		CachedFrame *b = a->next;
-		free(a->frame);
-		free(a);
-		a = b;
-	}
+        /* free all cached frames */
+        CachedFrame *a = c->first;
+        while(a)
+        {
+                CachedFrame *b = a->next;
+                free(a->frame);
+                free(a);
+                a = b;
+        }
 
-	/* free cache */
-	free(c);
+        /* free cache */
+        free(c);
 
-	NFT_LOG(L_DEBUG, "destroying frame cache");
+        NFT_LOG(L_DEBUG, "destroying frame cache");
 }

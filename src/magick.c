@@ -60,12 +60,12 @@
 /** 
  * ImageMagick error-handler 
  */
-void im_error(MagickWand *wand)
+void im_error(MagickWand * wand)
 {
 #if HAVE_IMAGEMAGICK == 1
         char *description;
-        ExceptionType  severity;
-        
+        ExceptionType severity;
+
         description = MagickGetException(wand, &severity);
         NFT_LOG(L_ERROR, "%s %s %lu %s\n", GetMagickModule(), description);
         description = (char *) MagickRelinquishMemory(description);
@@ -86,7 +86,7 @@ NftResult im_init(struct Ledcat *c)
                 if(!(c->mw = NewMagickWand()))
                         return false;
 
-              
+
         }
 #endif
         return true;
@@ -98,7 +98,7 @@ NftResult im_init(struct Ledcat *c)
  */
 void im_deinit(struct Ledcat *c)
 {
-#if HAVE_MAGICKWAND == 1       
+#if HAVE_MAGICKWAND == 1
         if(!c->raw)
         {
                 DestroyMagickWand(c->mw);
@@ -149,17 +149,19 @@ void im_close_stream(struct Ledcat *c)
 /**
  * determine format that ImageMagick should provide 
  */
-NftResult im_format(struct Ledcat *c, LedPixelFormat *format)
+NftResult im_format(struct Ledcat *c, LedPixelFormat * format)
 {
 #if HAVE_IMAGEMAGICK == 1
 
         /* determine map format for MagickGetImagePixels */
-        strncpy(c->map, led_pixel_format_colorspace_to_string(format), sizeof(c->map));
+        strncpy(c->map, led_pixel_format_colorspace_to_string(format),
+                sizeof(c->map));
 
         /* copy string to tmp buffer */
         char type[16];
-        strncpy(type, led_pixel_format_get_component_type(format, 0), sizeof(type));
-	type[sizeof(type)-1] = '\0';
+        strncpy(type, led_pixel_format_get_component_type(format, 0),
+                sizeof(type));
+        type[sizeof(type) - 1] = '\0';
 
         /* determine storage format for MagickGetImagePixels */
         if(strncmp(type, "u8", sizeof(type)) == 0)
@@ -180,7 +182,7 @@ NftResult im_format(struct Ledcat *c, LedPixelFormat *format)
                 return false;
         }
 #endif
-        
+
         return true;
 }
 
@@ -188,7 +190,8 @@ NftResult im_format(struct Ledcat *c, LedPixelFormat *format)
 /**
  * read frame using ImageMagick
  */
-NftResult im_read_frame(struct Ledcat *c, size_t width, size_t height, char *buf)
+NftResult im_read_frame(struct Ledcat * c, size_t width, size_t height,
+                        char *buf)
 {
 #if HAVE_IMAGEMAGICK == 1
 
@@ -202,7 +205,7 @@ NftResult im_read_frame(struct Ledcat *c, size_t width, size_t height, char *buf
                 /* end-of-stream? */
                 if(feof(c->file))
                         return false;
-                
+
                 /* read file */
                 if(!MagickReadImageFile(c->mw, c->file))
                 {
@@ -211,31 +214,30 @@ NftResult im_read_frame(struct Ledcat *c, size_t width, size_t height, char *buf
                 }
 
                 /* reset iterator in case we read more than one file */
-                //MagickResetIterator(c->mw);
+                // MagickResetIterator(c->mw);
         }
 
-        
+
         /* turn possible alpha-channel black */
-        /*PixelWand *pw;
-        if(!(pw = NewPixelWand()))
-                return false;
-        
-        PixelSetColor(pw, "black");
-        MagickSetImageBackgroundColor(c->mw, pw);
-        DestroyPixelWand(pw);*/
-                
+        /* PixelWand *pw; if(!(pw = NewPixelWand())) return false;
+         * 
+         * PixelSetColor(pw, "black"); MagickSetImageBackgroundColor(c->mw,
+         * pw); DestroyPixelWand(pw); */
+
         /* get raw-buffer from imagemagick */
-        if(!(MagickExportImagePixels(c->mw, 0, 0, width, height, c->map, c->storage, buf)))
+        if(!
+           (MagickExportImagePixels
+            (c->mw, 0, 0, width, height, c->map, c->storage, buf)))
         {
                 im_error(c->mw);
                 return false;
         }
-        
+
         /* free resources */
         if(!MagickHasNextImage(c->mw))
                 ClearMagickWand(c->mw);
 
 #endif
-        
+
         return true;
 }

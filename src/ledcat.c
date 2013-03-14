@@ -77,8 +77,8 @@ static struct Ledcat _c;
 /** signal handler for exiting */
 void _exit_signal_handler(int signal)
 {
-	NFT_LOG(L_INFO, "Exiting...");
-	_c.running = false;
+        NFT_LOG(L_INFO, "Exiting...");
+        _c.running = false;
 }
 
 #if ! WIN32
@@ -93,10 +93,10 @@ void _alarm_signal_handler(int signal)
 void _print_loglevels()
 {
         /* print loglevels */
-	printf("Valid loglevels:\n\t");
-	NftLoglevel i;
-	for(i = L_MAX+1; i<L_MIN-1; i++)
-		printf("%s ", nft_log_level_to_string(i));
+        printf("Valid loglevels:\n\t");
+        NftLoglevel i;
+        for(i = L_MAX + 1; i < L_MIN - 1; i++)
+                printf("%s ", nft_log_level_to_string(i));
         printf("\n\n");
 }
 
@@ -104,14 +104,14 @@ void _print_loglevels()
 /** print commandline help */
 static void _print_help(char *name)
 {
-	printf("Send image to LED hardware - %s\n"
-	       "Usage: %s [options] <file(s)>\n\n"
-	       "Choose \"-\" as <file> to read from stdin\n\n"
-	       "Valid options:\n"
-	       "\t--help\t\t\t-h\t\tThis help text\n"
+        printf("Send image to LED hardware - %s\n"
+               "Usage: %s [options] <file(s)>\n\n"
+               "Choose \"-\" as <file> to read from stdin\n\n"
+               "Valid options:\n"
+               "\t--help\t\t\t-h\t\tThis help text\n"
                "\t--plugin-help\t\t-p\t\tList of installed plugins + information\n"
-	       "\t--config <file>\t\t-c <file>\tLoad this prefs file [~/.ledcat.xml]\n"
-	       "\t--no-cache\t\t-n\t\tDon't use frame cache [off]\n"
+               "\t--config <file>\t\t-c <file>\tLoad this prefs file [~/.ledcat.xml]\n"
+               "\t--no-cache\t\t-n\t\tDon't use frame cache [off]\n"
                "\t--dimensions <w>x<h>\t-d <w>x<h>\tDefine width and height of input frames. [auto]\n"
                "\t--big-endian\t\t-b\t\tRAW data is big-endian ordered [off]\n"
                "\t--loop\t\t\t-L\t\tDon't exit after last file but start over with first [off]\n"
@@ -120,12 +120,12 @@ static void _print_help(char *name)
                "\t--raw\t\t\t-r\t\tTreat input files as raw-files (false)\n"
 #endif
                "\t--format <format>\t-f <format>\tPixelformat of raw frame - doesn't have effect without --raw. (s. http://gegl.org/babl/ for supported formats)\n"
-	       "\t--loglevel <level>\t-l <level>\tOnly show messages with loglevel <level> (info)\n\n",
-	       PACKAGE_URL, name);
+               "\t--loglevel <level>\t-l <level>\tOnly show messages with loglevel <level> (info)\n\n",
+               PACKAGE_URL, name);
 
-	/* print loglevels */
+        /* print loglevels */
         printf("\n");
-	_print_loglevels();
+        _print_loglevels();
 }
 
 
@@ -166,57 +166,58 @@ static void _print_plugin_help()
 /** parse commandline arguments */
 static NftResult _parse_args(int argc, char *argv[])
 {
-	int index, argument;
+        int index, argument;
 
-	static struct option loptions[] =
-	{
-		{"help", 0, 0, 'h'},
+        static struct option loptions[] = {
+                {"help", 0, 0, 'h'},
                 {"plugin-help", 0, 0, 'p'},
-		{"loglevel", required_argument, 0, 'l'},
-		{"config", required_argument, 0, 'c'},
+                {"loglevel", required_argument, 0, 'l'},
+                {"config", required_argument, 0, 'c'},
                 {"dimensions", required_argument, 0, 'd'},
                 {"fps", required_argument, 0, 'F'},
                 {"format", required_argument, 0, 'f'},
                 {"big-endian", no_argument, 0, 'b'},
                 {"loop", no_argument, 0, 'L'},
-		{"no-cache", no_argument, 0, 'n'},
+                {"no-cache", no_argument, 0, 'n'},
 #if HAVE_IMAGEMAGICK == 1
                 {"raw", no_argument, 0, 'r'},
 #endif
-		{0,0,0,0}
-	};
+                {0, 0, 0, 0}
+        };
 
 #if HAVE_IMAGEMAGICK == 1
-	const char arglist[] = "hpl:c:d:F:f:bLnr";
+        const char arglist[] = "hpl:c:d:F:f:bLnr";
 #else
-	const char arglist[] = "hpl:c:d:F:f:bLn";
+        const char arglist[] = "hpl:c:d:F:f:bLn";
 #endif
-	while((argument = getopt_long(argc, argv, arglist, loptions, &index)) >= 0)
-	{
+        while((argument =
+               getopt_long(argc, argv, arglist, loptions, &index)) >= 0)
+        {
 
-		switch(argument)
-		{
-			/* --help */
-			case 'h':
-			{
-				_print_help(argv[0]);
-				return NFT_FAILURE;
-			}
+                switch (argument)
+                {
+                                /* --help */
+                        case 'h':
+                        {
+                                _print_help(argv[0]);
+                                return NFT_FAILURE;
+                        }
 
-                        /* --plugin-help */
+                                /* --plugin-help */
                         case 'p':
                         {
                                 _print_plugin_help();
                                 return NFT_FAILURE;
                         }
 
-			/* --config */
-			case 'c':
-			{
-				/* save filename for later */
-				strncpy(_c.prefsfile, optarg, sizeof(_c.prefsfile));
-				break;
-			}
+                                /* --config */
+                        case 'c':
+                        {
+                                /* save filename for later */
+                                strncpy(_c.prefsfile, optarg,
+                                        sizeof(_c.prefsfile));
+                                break;
+                        }
 
                         /** --loop */
                         case 'L':
@@ -228,41 +229,50 @@ static NftResult _parse_args(int argc, char *argv[])
                         /** --dimensions */
                         case 'd':
                         {
-                                if(sscanf(optarg, "%32dx%32d", (int*) &_c.width, (int*) &_c.height) != 2)
-				{
-					NFT_LOG(L_ERROR, "Invalid dimension \"%s\" (Use something like 320x400)", optarg);
-					return NFT_FAILURE;
-				}
+                                if(sscanf
+                                   (optarg, "%32dx%32d", (int *) &_c.width,
+                                    (int *) &_c.height) != 2)
+                                {
+                                        NFT_LOG(L_ERROR,
+                                                "Invalid dimension \"%s\" (Use something like 320x400)",
+                                                optarg);
+                                        return NFT_FAILURE;
+                                }
                                 break;
                         }
 
                         /** --fps */
                         case 'F':
                         {
-                                if(sscanf(optarg, "%32d", (int*) &_c.fps) != 1)
-				{
-					NFT_LOG(L_ERROR, "Invalid framerate \"%s\" (Use an integer)", optarg);
-					return NFT_FAILURE;
-				}
-				break;
+                                if(sscanf(optarg, "%32d", (int *) &_c.fps) !=
+                                   1)
+                                {
+                                        NFT_LOG(L_ERROR,
+                                                "Invalid framerate \"%s\" (Use an integer)",
+                                                optarg);
+                                        return NFT_FAILURE;
+                                }
+                                break;
                         }
 
-			/** --loglevel */
-			case 'l':
-			{
-				if(!nft_log_level_set(nft_log_level_from_string(optarg)))
+                        /** --loglevel */
+                        case 'l':
+                        {
+                                if(!nft_log_level_set
+                                   (nft_log_level_from_string(optarg)))
                                 {
                                         _print_loglevels();
                                         return NFT_FAILURE;
                                 }
 
-				break;
-			}
+                                break;
+                        }
 
                         /** --format */
                         case 'f':
                         {
-                                strncpy(_c.pixelformat, optarg, sizeof(_c.pixelformat));
+                                strncpy(_c.pixelformat, optarg,
+                                        sizeof(_c.pixelformat));
                                 break;
                         }
 
@@ -283,36 +293,38 @@ static NftResult _parse_args(int argc, char *argv[])
                         }
 
 
-			/** --no-cache */
-			case 'n':
-			{
-				_c.no_caching = true;
-				break;
-			}
-				
-			/* invalid argument */
-			case '?':
-			{
-				NFT_LOG(L_ERROR, "argument %d is invalid", index);
-				_print_help(argv[0]);
-				return NFT_FAILURE;
-			}
+                        /** --no-cache */
+                        case 'n':
+                        {
+                                _c.no_caching = true;
+                                break;
+                        }
 
-				
-			/* unhandled arguments */
-			default:
-			{
-				NFT_LOG(L_ERROR, "argument %d is invalid", index);
-				break;
-			}
-		}
-	}
+                                /* invalid argument */
+                        case '?':
+                        {
+                                NFT_LOG(L_ERROR, "argument %d is invalid",
+                                        index);
+                                _print_help(argv[0]);
+                                return NFT_FAILURE;
+                        }
 
 
-	_c.files = &argv[optind];
+                                /* unhandled arguments */
+                        default:
+                        {
+                                NFT_LOG(L_ERROR, "argument %d is invalid",
+                                        index);
+                                break;
+                        }
+                }
+        }
 
 
-	return NFT_SUCCESS;
+        _c.files = &argv[optind];
+
+
+        return NFT_SUCCESS;
 }
 
 
@@ -327,8 +339,8 @@ int main(int argc, char *argv[])
 {
         /* current configuration */
         LedPrefs *p = NULL;
-    	/* current setup */
-    	LedSetup *s = NULL;
+        /* current setup */
+        LedSetup *s = NULL;
         /* list of LED hardware adapters */
         LedHardware *hw = NULL;
         /* input pixel-frame buffer */
@@ -337,20 +349,20 @@ int main(int argc, char *argv[])
         LedFrameCord width;
         /* height of map */
         LedFrameCord height;
-	/* frame cache */
-	Cache *cache = NULL;
-	
+        /* frame cache */
+        Cache *cache = NULL;
+
 
 
         /* check libniftyled binary version compatibility */
         if(!NFT_LED_CHECK_VERSION)
-		return EXIT_FAILURE;
+                return EXIT_FAILURE;
 
         /* set default loglevel to INFO */
         if(!nft_log_level_set(L_INFO))
         {
-            fprintf(stderr, "nft_log_level_set() error");
-            return EXIT_FAILURE;
+                fprintf(stderr, "nft_log_level_set() error");
+                return EXIT_FAILURE;
         }
 
 
@@ -361,13 +373,13 @@ int main(int argc, char *argv[])
         int signals[] = { SIGHUP, SIGINT, SIGQUIT, SIGABRT };
 #endif
         unsigned int i;
-        for(i=0; i<sizeof(signals)/sizeof(int); i++)
+        for(i = 0; i < sizeof(signals) / sizeof(int); i++)
         {
-            if(signal(signals[i], _exit_signal_handler) == SIG_ERR)
-            {
-                NFT_LOG_PERROR("signal()");
-                return EXIT_FAILURE;
-            }
+                if(signal(signals[i], _exit_signal_handler) == SIG_ERR)
+                {
+                        NFT_LOG_PERROR("signal()");
+                        return EXIT_FAILURE;
+                }
         }
 
 
@@ -382,33 +394,36 @@ int main(int argc, char *argv[])
         /* default handle-input-as-raw */
         _c.raw = false;
 #endif
-	
+
         /* default looping */
         _c.do_loop = false;
 
         /* set "running" flag */
         _c.running = true;
 
-	/* use caching by default */
-	_c.no_caching = false;
-	
+        /* use caching by default */
+        _c.no_caching = false;
+
         /* default pixel-format */
         strncpy(_c.pixelformat, "RGB u8", sizeof(_c.pixelformat));
 
         /* default prefs-filename */
-        if(!led_prefs_default_filename(_c.prefsfile, sizeof(_c.prefsfile), ".ledcat.xml"))
+        if(!led_prefs_default_filename
+           (_c.prefsfile, sizeof(_c.prefsfile), ".ledcat.xml"))
                 return EXIT_FAILURE;
 
 
-	/* parse commandline arguments */
-	if(!_parse_args(argc, argv))
-		return EXIT_FAILURE;
+        /* parse commandline arguments */
+        if(!_parse_args(argc, argv))
+                return EXIT_FAILURE;
 
 
 
-	/* print welcome msg */
-	NFT_LOG(L_INFO, "%s %s (c) D.Hiepler 2006-2012", PACKAGE_NAME, ledcat_version_long());
-	NFT_LOG(L_VERBOSE, "Loglevel: %s", nft_log_level_to_string(nft_log_level_get()));
+        /* print welcome msg */
+        NFT_LOG(L_INFO, "%s %s (c) D.Hiepler 2006-2012", PACKAGE_NAME,
+                ledcat_version_long());
+        NFT_LOG(L_VERBOSE, "Loglevel: %s",
+                nft_log_level_to_string(nft_log_level_get()));
 
 
 #if HAVE_IMAGEMAGICK == 1
@@ -423,33 +438,33 @@ int main(int argc, char *argv[])
         }
 #endif
 
-	/* default result of main() function */
+        /* default result of main() function */
         int res = EXIT_FAILURE;
-	
-    	/* initialize preferences context */
-    	if(!(p = led_prefs_init()))
-    		goto m_deinit;
 
-	
-	/* parse prefs-file */
-    	LedPrefsNode *pnode;
-    	if(!(pnode = led_prefs_node_from_file(_c.prefsfile)))
-    	{
-		NFT_LOG(L_ERROR, "Failed to open configfile \"%s\"",
-		        		_c.prefsfile);
-		goto m_deinit;
-	}
+        /* initialize preferences context */
+        if(!(p = led_prefs_init()))
+                goto m_deinit;
+
+
+        /* parse prefs-file */
+        LedPrefsNode *pnode;
+        if(!(pnode = led_prefs_node_from_file(_c.prefsfile)))
+        {
+                NFT_LOG(L_ERROR, "Failed to open configfile \"%s\"",
+                        _c.prefsfile);
+                goto m_deinit;
+        }
 
         /* create setup from prefs-node */
-    	if(!(s = led_prefs_setup_from_node(p, pnode)))
-    	{
-		NFT_LOG(L_ERROR, "No valid setup found in preferences file.");
-		led_prefs_node_free(pnode);
-		goto m_deinit;
-	}
+        if(!(s = led_prefs_setup_from_node(p, pnode)))
+        {
+                NFT_LOG(L_ERROR, "No valid setup found in preferences file.");
+                led_prefs_node_free(pnode);
+                goto m_deinit;
+        }
 
-    	/* free preferences node */
-    	led_prefs_node_free(pnode);
+        /* free preferences node */
+        led_prefs_node_free(pnode);
 
         /* determine width of input-frames */
         if(!_c.width)
@@ -471,17 +486,19 @@ int main(int argc, char *argv[])
         /* validate dimensions */
         if(width <= 0 || height <= 0)
         {
-                NFT_LOG(L_ERROR, "Dimensions %dx%d not possible in this universe. Exiting.", width, height);
+                NFT_LOG(L_ERROR,
+                        "Dimensions %dx%d not possible in this universe. Exiting.",
+                        width, height);
                 goto m_deinit;
         }
 
 
-	/* allocate frame (where our pixelbuffer resides) */
-	NFT_LOG(L_INFO, "Allocating frame: %dx%d (%s)",
-	        width, height, _c.pixelformat);
+        /* allocate frame (where our pixelbuffer resides) */
+        NFT_LOG(L_INFO, "Allocating frame: %dx%d (%s)",
+                width, height, _c.pixelformat);
         LedPixelFormat *format = led_pixel_format_from_string(_c.pixelformat);
-	if(!(frame = led_frame_new(width, height, format)))
-		goto m_deinit;
+        if(!(frame = led_frame_new(width, height, format)))
+                goto m_deinit;
 
 
         /* get first toplevel hardware */
@@ -496,7 +513,8 @@ int main(int argc, char *argv[])
         LedHardware *ch;
         for(ch = hw; ch; ch = led_hardware_list_get_next(ch))
         {
-                if(!led_chain_map_from_frame(led_hardware_get_chain(ch), frame))
+                if(!led_chain_map_from_frame
+                   (led_hardware_get_chain(ch), frame))
                         goto m_deinit;
         }
 
@@ -510,18 +528,19 @@ int main(int argc, char *argv[])
         {
                 if(!(im_format(&_c, format)))
                 {
-                        NFT_LOG(L_ERROR, "Failed to determine valid ImageMagick format");
+                        NFT_LOG(L_ERROR,
+                                "Failed to determine valid ImageMagick format");
                         goto m_deinit;
                 }
         }
 #endif
 
-	/* do we have at least one filename? */
-	if(!_c.files[0])
-	{
-		NFT_LOG(L_ERROR, "No input file(s) given");
-		goto m_deinit;
-	}
+        /* do we have at least one filename? */
+        if(!_c.files[0])
+        {
+                NFT_LOG(L_ERROR, "No input file(s) given");
+                goto m_deinit;
+        }
 
 
         /* initially sample time for frame-timing */
@@ -546,7 +565,7 @@ int main(int argc, char *argv[])
         }
 #endif
 
-	
+
         /* get data-buffer of frame to write our pixels to */
         char *buf;
         if(!(buf = led_frame_get_buffer(frame)))
@@ -556,186 +575,206 @@ int main(int argc, char *argv[])
         }
 
 
-	/* initialize frame cache */	
-	if(!(cache = cache_new()))
-	{
-		NFT_LOG(L_ERROR, "Failed to initialize frame cache");
-		goto m_deinit;
-	}
+        /* initialize frame cache */
+        if(!(cache = cache_new()))
+        {
+                NFT_LOG(L_ERROR, "Failed to initialize frame cache");
+                goto m_deinit;
+        }
 
-	/* cache disabled by commandline */
-	if(_c.no_caching)
-		cache_disable(cache, true);
-
-
+        /* cache disabled by commandline */
+        if(_c.no_caching)
+                cache_disable(cache, true);
 
 
-	
-	/* walk all files (supplied as commandline arguments) and output them */
-	int filecount;
-	for(filecount = 0; _c.files[filecount]; filecount++)
-	{
 
-		NFT_LOG(L_VERBOSE, "Getting pixels from \"%s\"", _c.files[filecount]);
 
-		
-		/* check if file is already cached */
-		CachedFrame *f;
-		bool cached_frame_found;
-		
-		if((f = cache_frame_get(cache, _c.files[filecount])))
-		{
-			/* copy frame to buffer */
-			memcpy(buf, f->frame, f->size);
 
-			/* mark current frame as cached */
-			cached_frame_found = true;
-		}
-		else
-		{
-			/* current frame not found in cache */
-			cached_frame_found = false;
-			
-			/* open file */
-			if(_c.files[filecount][0] == '-' && strlen(_c.files[filecount]) == 1)
-			{
-				_c.fd = STDIN_FILENO;
-			}
-			else
-			{
-				if((_c.fd = open(_c.files[filecount], O_RDONLY)) < 0)
-				{
-					NFT_LOG(L_ERROR, "Failed to open \"%s\": %s",
-						_c.files[filecount], strerror(errno));
-					continue;
-				}
-			}
+        /* walk all files (supplied as commandline arguments) and output them */
+        int filecount;
+        for(filecount = 0; _c.files[filecount]; filecount++)
+        {
+
+                NFT_LOG(L_VERBOSE, "Getting pixels from \"%s\"",
+                        _c.files[filecount]);
+
+
+                /* check if file is already cached */
+                CachedFrame *f;
+                bool cached_frame_found;
+
+                if((f = cache_frame_get(cache, _c.files[filecount])))
+                {
+                        /* copy frame to buffer */
+                        memcpy(buf, f->frame, f->size);
+
+                        /* mark current frame as cached */
+                        cached_frame_found = true;
+                }
+                else
+                {
+                        /* current frame not found in cache */
+                        cached_frame_found = false;
+
+                        /* open file */
+                        if(_c.files[filecount][0] == '-' &&
+                           strlen(_c.files[filecount]) == 1)
+                        {
+                                _c.fd = STDIN_FILENO;
+                        }
+                        else
+                        {
+                                if((_c.fd =
+                                    open(_c.files[filecount], O_RDONLY)) < 0)
+                                {
+                                        NFT_LOG(L_ERROR,
+                                                "Failed to open \"%s\": %s",
+                                                _c.files[filecount],
+                                                strerror(errno));
+                                        continue;
+                                }
+                        }
 
 #if HAVE_IMAGEMAGICK == 1
-			/** initialize stream for ImageMagick */
-			if(!_c.raw)
-			{
-				if(!(im_open_stream(&_c)))
-					continue;
-			}
+                        /** initialize stream for ImageMagick */
+                        if(!_c.raw)
+                        {
+                                if(!(im_open_stream(&_c)))
+                                        continue;
+                        }
 #endif
-		}
+                }
 
 
 
-		/* output file frame-by-frame */
-		while(_c.running)
-		{
+                /* output file frame-by-frame */
+                while(_c.running)
+                {
 
-			if(!cached_frame_found)
-			{
+                        if(!cached_frame_found)
+                        {
 #if HAVE_IMAGEMAGICK == 1
-				/* use imagemagick to load file if we're not in "raw-mode" */
-				if(!_c.raw)
-				{
-					/* load frame to buffer using ImageMagick */
-					if(!im_read_frame(&_c, width, height, buf))
-						break;
+                                /* use imagemagick to load file if we're not in 
+                                 * "raw-mode" */
+                                if(!_c.raw)
+                                {
+                                        /* load frame to buffer using
+                                         * ImageMagick */
+                                        if(!im_read_frame
+                                           (&_c, width, height, buf))
+                                                break;
 
-				}
-				else
-				{
+                                }
+                                else
+                                {
 #endif
-					/* read raw frame */
-					if(raw_read_frame(&_c.running, buf, _c.fd,
-						       led_pixel_format_get_buffer_size(
-								led_frame_get_format(frame),
-								led_frame_get_width(frame)*led_frame_get_height(frame))) == 0)
-						continue;
+                                        /* read raw frame */
+                                        if(raw_read_frame
+                                           (&_c.running, buf, _c.fd,
+                                            led_pixel_format_get_buffer_size
+                                            (led_frame_get_format(frame),
+                                             led_frame_get_width(frame) *
+                                             led_frame_get_height(frame))) ==
+                                           0)
+                                                continue;
 
 #if HAVE_IMAGEMAGICK == 1
-				}
+                                }
 #endif
 
-				/* cache frame */
-				if(!(cache_frame_put(cache, buf, led_frame_get_buffersize(frame), _c.files[filecount])))
-				{
-					NFT_LOG(L_ERROR, "Failed to cache frame \"%s\"", _c.files[filecount]);
-					break;
-				}
+                                /* cache frame */
+                                if(!
+                                   (cache_frame_put
+                                    (cache, buf,
+                                     led_frame_get_buffersize(frame),
+                                     _c.files[filecount])))
+                                {
+                                        NFT_LOG(L_ERROR,
+                                                "Failed to cache frame \"%s\"",
+                                                _c.files[filecount]);
+                                        break;
+                                }
 
-			}
-
-						
-			/* set endianess (flag will be changed when conversion occurs) */
-			led_frame_set_big_endian(frame, _c.is_big_endian);
-
-			/* fill chain of every hardware from frame */
-			LedHardware *h;
-			for(h = hw; h; h = led_hardware_list_get_next(h))
-			{
-				if(!led_chain_fill_from_frame(led_hardware_get_chain(h), frame))
-				{
-					NFT_LOG(L_ERROR, "Error while mapping frame");
-					break;
-				}
-			}
-
-			/* send frame to hardware(s) */
-			NFT_LOG(L_DEBUG, "Sending frame");
-			led_hardware_list_send(hw);
-
-			/* delay in respect to fps */
-			if(!led_fps_delay(_c.fps))
-				break;
-
-			/* latch hardware */
-			NFT_LOG(L_DEBUG, "Showing frame");
-			led_hardware_list_show(hw);
+                        }
 
 
-			/* save time when frame is displayed */
-			if(!led_fps_sample())
-				break;
+                        /* set endianess (flag will be changed when conversion
+                         * occurs) */
+                        led_frame_set_big_endian(frame, _c.is_big_endian);
 
-			/* if frame is from cache, there are no more frames 
-			   since this can't be a stream */
-			if(cached_frame_found)
-				break;
-			
-		}
+                        /* fill chain of every hardware from frame */
+                        LedHardware *h;
+                        for(h = hw; h; h = led_hardware_list_get_next(h))
+                        {
+                                if(!led_chain_fill_from_frame
+                                   (led_hardware_get_chain(h), frame))
+                                {
+                                        NFT_LOG(L_ERROR,
+                                                "Error while mapping frame");
+                                        break;
+                                }
+                        }
 
-		/* close file if not from cache */
-		if(!cached_frame_found)
-		{
+                        /* send frame to hardware(s) */
+                        NFT_LOG(L_DEBUG, "Sending frame");
+                        led_hardware_list_send(hw);
+
+                        /* delay in respect to fps */
+                        if(!led_fps_delay(_c.fps))
+                                break;
+
+                        /* latch hardware */
+                        NFT_LOG(L_DEBUG, "Showing frame");
+                        led_hardware_list_show(hw);
+
+
+                        /* save time when frame is displayed */
+                        if(!led_fps_sample())
+                                break;
+
+                        /* if frame is from cache, there are no more frames
+                         * since this can't be a stream */
+                        if(cached_frame_found)
+                                break;
+
+                }
+
+                /* close file if not from cache */
+                if(!cached_frame_found)
+                {
 #if HAVE_IMAGEMAGICK == 1
-			if(!_c.raw)
-				im_close_stream(&_c);
+                        if(!_c.raw)
+                                im_close_stream(&_c);
 #else
-			close(_c.fd);
+                        close(_c.fd);
 #endif
-		}
-		
-		/* reset flag */
-		cached_frame_found = false;
-		
+                }
+
+                /* reset flag */
+                cached_frame_found = false;
+
                 /* loop endlessly? */
-                if((_c.running) && (!_c.files[filecount+1]) && _c.do_loop)
+                if((_c.running) && (!_c.files[filecount + 1]) && _c.do_loop)
                 {
                         /* start over by resetting the for-loop */
                         filecount = -1;
                 }
-	}
+        }
 
-	
+
         /* all ok */
         res = EXIT_SUCCESS;
 
-	
-m_deinit:
-	/* free frame cache */
-	cache_destroy(cache);
-		
-    	/* free setup */
-    	led_setup_destroy(s);
 
-	/* free frame */
-	led_frame_destroy(frame);
+m_deinit:
+        /* free frame cache */
+        cache_destroy(cache);
+
+        /* free setup */
+        led_setup_destroy(s);
+
+        /* free frame */
+        led_frame_destroy(frame);
 
         /* destroy config */
         led_prefs_deinit(p);

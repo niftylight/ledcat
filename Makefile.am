@@ -10,6 +10,21 @@ EXTRA_DIST = \
 	debian
 
 
+# indent source & header-files
+INDENT_C_ARGS=-pmt -bl -bls -cli8 -cbi0 -bli0 -cs -fca -i8 -sc -npsl -nut -npcs \
+                -nsaf -nsai -cd2 -nce -ncdw -lc80 -nprs -nsaw -il0 -nbbo -bap \
+                -hnl -lp -blf -ip0 -nbfda
+INDENT_H_ARGS=-pmt -bl -bls -cli8 -cbi0 -bli0 -cs -fca -i8 -sc -npsl -nut -npcs \
+                -nsaf -nsai -cd2 -nce -ncdw -l800 -lc800 -bad -nprs -nsaw \
+                -di32 -hnl -nbc -nbfda -nbfde
+
+.PHONY: indent
+indent:
+        @echo Indenting source-files...
+        find $(top_srcdir)/src -type f -and -name '*.[h]*' -not -empty -exec indent $(INDENT_H_ARGS) {} \;
+        find $(top_srcdir)/src -type f -and -name '*.[c]*' -not -empty -exec indent $(INDENT_C_ARGS) {} \;
+
+
 # create .deb package
 # needs dpkg-dev, debhelper
 DEBTMPDIR=deb-tmp

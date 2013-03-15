@@ -493,6 +493,14 @@ int main(int argc, char *argv[])
         }
 
 
+	/* get first toplevel hardware */
+        if(!(hw = led_setup_get_hardware(s)))
+                goto m_deinit;
+
+        /* initialize pixel->led mapping */
+        if(!led_hardware_list_refresh_mapping(hw))
+                goto m_deinit;
+	
         /* allocate frame (where our pixelbuffer resides) */
         NFT_LOG(L_INFO, "Allocating frame: %dx%d (%s)",
                 width, height, _c.pixelformat);
@@ -500,14 +508,6 @@ int main(int argc, char *argv[])
         if(!(frame = led_frame_new(width, height, format)))
                 goto m_deinit;
 
-
-        /* get first toplevel hardware */
-        if(!(hw = led_setup_get_hardware(s)))
-                goto m_deinit;
-
-        /* initialize pixel->led mapping */
-        if(!led_hardware_list_refresh_mapping(hw))
-                goto m_deinit;
 
         /* precalc memory offsets for actual mapping */
         LedHardware *ch;

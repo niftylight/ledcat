@@ -420,7 +420,7 @@ int main(int argc, char *argv[])
 
 
         /* print welcome msg */
-        NFT_LOG(L_INFO, "%s %s (c) D.Hiepler 2006-2012", PACKAGE_NAME,
+        NFT_LOG(L_INFO, "%s %s (c) D.Hiepler 2006-2013", PACKAGE_NAME,
                 ledcat_version_long());
         NFT_LOG(L_VERBOSE, "Loglevel: %s",
                 nft_log_level_to_string(nft_log_level_get()));

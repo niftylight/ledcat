@@ -1,22 +1,28 @@
 #############
 # ledcat configure.ac
-# v0.4 - (c) Daniel Hiepler (2010-2012)
+# v0.5 - (c) Daniel Hiepler (2010-2013)
+
 
 # --------------------------------
 #    initialization
 # --------------------------------
 
+# package info
 AC_INIT([ledcat], m4_esyscmd([./version --short]),[http://github.com/niftylight/ledcat/issues], [ledcat], [http://wiki.niftylight.de/AC_PACKAGE_NAME])
-AC_COPYRIGHT([Copyright (C) 2006-2012 Daniel Hiepler])
+AC_COPYRIGHT([Copyright (C) 2006-2013 Daniel Hiepler])
 
+# for cross compiling
 AC_CANONICAL_SYSTEM
+
+# autotools initialization
+AC_LANG(C)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([color-tests dist-bzip2 parallel-tests silent-rules -Wall -Wno-portability])
 
 
 
 # --------------------------------
-#    information on the package
+#    further info on the package
 # --------------------------------
 # infos
 PACKAGE_DESCRIPTION="niftyled cat tool"
@@ -37,8 +43,6 @@ AC_SUBST([PACKAGE_GIT_VERSION], m4_esyscmd([./version --git]), [git version])
 # --------------------------------
 #    checks for programs
 # --------------------------------
-AM_PROG_CC_C_O
-AC_PROG_CC_STDC
 PKG_PROG_PKG_CONFIG([0.14])
 if test -z "${PKG_CONFIG}"; then
   AC_MSG_ERROR([*** pkg-config not found. See http://www.freedesktop.org/software/pkgconfig/ or check your distribution.])
@@ -96,6 +100,8 @@ AC_FUNC_ALLOCA
 # --------------------------------
 #   compile process
 # --------------------------------
+AC_PROG_CC_C99
+AM_PROG_CC_C_O
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 
@@ -144,20 +150,19 @@ AC_CONFIG_FILES(
 AC_OUTPUT
 
 
-echo "
+echo -e "
 Configure report:
 
-    Package.....................:  ${PACKAGE_STRING}
-    Description.................:  ${PACKAGE_DESCRIPTION}
-    Revision....................:  ${PACKAGE_GIT_VERSION}
-    URL.........................:  ${PACKAGE_URL}
-    Bugreports..................:  ${PACKAGE_BUGREPORT}
-    ImageMagick.................:  ${MSG_IMAGEMAGICK}
+\tPackage.....................:  ${PACKAGE_STRING}
+\tDescription.................:  ${PACKAGE_DESCRIPTION}
+\tRevision....................:  ${PACKAGE_GIT_VERSION}
+\tURL.........................:  ${PACKAGE_URL}
+\tBugreports..................:  ${PACKAGE_BUGREPORT}
+\tImageMagick.................:  ${MSG_IMAGEMAGICK}
 
-    Install prefix..............:  ${prefix}
-    C compiler..................:  ${CC}
-    C++ compiler................:  ${CPP}
-    System CFLAGS...............:  ${CFLAGS}
-    System CXXFLAGS.............:  ${CXXFLAGS}
-    System LDFLAGS..............:  ${LDFLAGS}
+\tInstall prefix..............:  ${prefix}
+\tC compiler..................:  ${CC}
+\tSystem CFLAGS...............:  ${CFLAGS}
+\tSystem CXXFLAGS.............:  ${CXXFLAGS}
+\tSystem LDFLAGS..............:  ${LDFLAGS}
 "

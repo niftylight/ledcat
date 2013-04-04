@@ -3,7 +3,7 @@
 # v0.4 - (c) Daniel Hiepler (2010-2013)
 
 
-SUBDIRS = src
+SUBDIRS = src contrib
 
 EXTRA_DIST = \
 	gentoo \

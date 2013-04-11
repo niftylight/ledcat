@@ -47,3 +47,14 @@ src_install()
 
 	dodoc NEWS README AUTHORS ChangeLog
 }
+
+pkg_postinst()
+{
+        echo
+        elog "Sample configs come with libniftyled. Find them in"
+        elog "/usr/share/niftyled/examples/"
+        elog "Copy config to ~/.ledcat.xml or use the -c argument"
+        elog "to select a config. For further information,"
+        elog "see documentation at http://wiki.niftylight.de/${PF}"
+        echo
+}

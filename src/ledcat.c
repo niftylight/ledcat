@@ -603,7 +603,8 @@ int main(int argc, char *argv[])
                 CachedFrame *f;
                 bool cached_frame_found;
 
-                if((f = cache_frame_get(cache, _c.files[filecount])))
+                if((!_c.no_caching) && 
+                   (f = cache_frame_get(cache, _c.files[filecount])))
                 {
                         /* copy frame to buffer */
                         memcpy(buf, f->frame, f->size);
@@ -768,7 +769,8 @@ int main(int argc, char *argv[])
 
 m_deinit:
         /* free frame cache */
-        cache_destroy(cache);
+		if(!_c.no_caching)
+        		cache_destroy(cache);
 
         /* free setup */
         led_setup_destroy(s);

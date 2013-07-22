@@ -178,6 +178,9 @@ Cache *cache_new()
  */
 void cache_destroy(Cache * c)
 {
+        if(!c)
+                return;
+		
         /* free all cached frames */
         CachedFrame *a = c->first;
         while(a)

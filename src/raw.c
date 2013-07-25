@@ -86,6 +86,10 @@ int raw_read_frame(bool * running, char *buf, int fd, size_t size)
                 /* read data into buffer */
                 if((bytes_read = read(fd, buf, bytes_to_read)) < 0)
                 {
+						/* catch EINTR whe reading from the pipe */
+						if(fd == STDIN_FILENO && errno == EINTR)
+						        return 0;
+						
                         NFT_LOG_PERROR("read()");
                         return 0;
                 }

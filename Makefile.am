@@ -3,6 +3,10 @@
 # v0.4 - (c) Daniel Hiepler (2010-2013)
 
 
+# AMFLAGS
+ACLOCAL_AMFLAGS = -I m4
+
+
 SUBDIRS = \
 	src \
 	contrib

@@ -142,12 +142,13 @@ fi
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES(
 [
-	Makefile
-	contrib/Makefile
-	src/version.c
-	src/Makefile
-	gentoo/media-gfx/ledcat/ledcat-9999.ebuild
+        Makefile
+        contrib/Makefile
+        src/version.c
+        src/Makefile
+        gentoo/media-gfx/ledcat/ledcat-9999.ebuild
         debian/control.tmpl
+        debian/rules.tmpl
 ])
 AC_OUTPUT
 

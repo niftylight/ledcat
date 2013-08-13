@@ -147,6 +147,7 @@ AC_CONFIG_FILES(
         src/version.c
         src/Makefile
         gentoo/media-gfx/ledcat/ledcat-9999.ebuild
+        debian/changelog
         debian/control.tmpl
         debian/rules.tmpl
 ])

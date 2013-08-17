@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
         }
 
 
-	/* get first toplevel hardware */
+        /* get first toplevel hardware */
         if(!(hw = led_setup_get_hardware(s)))
                 goto m_deinit;
 

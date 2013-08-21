@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
         for(filecount = 0; _c.files[filecount]; filecount++)
         {
 
-                NFT_LOG(L_VERBOSE, "Getting pixels from \"%s\"",
+                NFT_LOG(L_DEBUG, "Getting pixels from \"%s\"",
                         _c.files[filecount]);
 
 
@@ -630,15 +630,18 @@ int main(int argc, char *argv[])
                                 {
 #endif
                                         /* read raw frame */
-                                        if(raw_read_frame
+										int bytes_read = raw_read_frame
                                            (&_c.running, buf, _c.fd,
                                             led_pixel_format_get_buffer_size
                                             (led_frame_get_format(frame),
                                              led_frame_get_width(frame) *
-                                             led_frame_get_height(frame))) ==
-                                           0)
-                                                continue;
-
+                                             led_frame_get_height(frame)));
+										
+                                        if(bytes_read < 0)
+										{
+												_c.running = false;
+                                                break;
+										}
 #if HAVE_IMAGEMAGICK == 1
                                 }
 #endif
@@ -688,7 +691,9 @@ int main(int argc, char *argv[])
                         NFT_LOG(L_DEBUG, "Showing frame");
                         led_hardware_list_show(hw);
 
-
+						/* increase framecount */
+						_c.frames_sent++;
+						
                         /* save time when frame is displayed */
                         if(!led_fps_sample())
                                 break;
@@ -728,6 +733,8 @@ int main(int argc, char *argv[])
 
 
 m_deinit:
+		NFT_LOG(L_VERBOSE, "[%llu] frames sent", _c.frames_sent);
+		
         /* free frame cache */
 		if(!_c.no_caching)
         		cache_destroy(cache);

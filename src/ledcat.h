@@ -82,6 +82,8 @@ struct Ledcat
         StorageType                     storage;
         /** ImageMagick wand */
         MagickWand                     *mw;
+		/** frames sent to LED setup */
+		long long unsigned int          frames_sent;
 #endif
 };
 

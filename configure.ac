@@ -151,6 +151,7 @@ AC_CONFIG_FILES(
         debian/changelog
         debian/control.tmpl
         debian/rules.tmpl
+        debian/watch
 ])
 AC_OUTPUT
 

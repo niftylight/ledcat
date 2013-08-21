@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
         /* default fps */
         _c.fps = 25;
 
-        /* default endianess */
+        /* default endianness */
         _c.is_big_endian = false;
 
 #if HAVE_IMAGEMAGICK == 1
@@ -659,7 +659,7 @@ int main(int argc, char *argv[])
                         }
 
 
-                        /* set endianess (flag will be changed when conversion
+                        /* set endianness (flag will be changed when conversion
                          * occurs) */
                         led_frame_set_big_endian(frame, _c.is_big_endian);
 

@@ -426,22 +426,15 @@ int main(int argc, char *argv[])
         /* free preferences node */
         led_prefs_node_free(pnode);
 
-        /* determine width of input-frames */
-        if(!_c.width)
-                /* width of mapped chain */
-                width = led_setup_get_width(s);
-        else
-                /* use value from cmdline arguments */
+		/* get setup dimensions */
+		if(!led_setup_get_dim(s, &width, &height))
+				goto m_deinit;
+		
+        /* override value from commandline? */
+        if(_c.width)           
                 width = _c.width;
-
-
-        /* determine height of input-frames */
-        if(!_c.height)
-                /* height of mapped chain */
-                height = led_setup_get_height(s);
-        else
+		if(_c.height)
                 height = _c.height;
-
 
         /* validate dimensions */
         if(width <= 0 || height <= 0)
@@ -629,13 +622,20 @@ int main(int argc, char *argv[])
                                 else
                                 {
 #endif
+										/* get frame dimensions */
+										LedFrameCord w,h;
+										if(!led_frame_get_dim(frame, &w, &h))
+										{
+												_c.running = false;
+												break;
+										}
+										
                                         /* read raw frame */
 										int bytes_read = raw_read_frame
                                            (&_c.running, buf, _c.fd,
                                             led_pixel_format_get_buffer_size
                                             (led_frame_get_format(frame),
-                                             led_frame_get_width(frame) *
-                                             led_frame_get_height(frame)));
+                                             w * h));
 										
                                         if(bytes_read < 0)
 										{

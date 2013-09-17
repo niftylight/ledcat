@@ -1,4 +1,16 @@
-ledcat for Debian
------------------
+ledcat (Debian package)
+=======================
 
-ledcat debian package. More information at http://wiki.niftylight.de/Ledcat
+"cat" like tool for niftyled to read pixels framewise from file(s) or stdin and send them
+to an LED setup.
+
+
+
+------------------------------------------------------------------------------
+
+Project page:	http://wiki.niftylight.de/ledcat  
+Sourcecode:	http://github.com/niftylight/ledcat  
+Issue tracker:	http://github.com/niftylight/ledcat/issues  
+Mailinglist:	niftyled@googlegroups.com  
+IRC chat:	irc://irc.freenode.net/niftylight   
+

@@ -1,10 +1,12 @@
-Niftyled cat tool
-=================
+ledcat
+======
 
-"cat" like tool to read pixels framewise from file(s) or stdin and send them
+"cat" like tool for niftyled to read pixels framewise from file(s) or stdin and send them
 to an LED setup.
 
 
+
+------------------------------------------------------------------------------
 
 Project page:	http://wiki.niftylight.de/ledcat  
 Repository:	http://github.com/niftylight/ledcat  

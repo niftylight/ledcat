@@ -1,7 +1,7 @@
 Source: @PACKAGE_NAME@
 Section: misc
 Priority: extra
-Maintainer: Daniel Hiepler <daniel-ubuntu@niftylight.de>
+Maintainer: Daniel Hiepler <daniel-debian@niftylight.de>
 Build-Depends: debhelper (>= 9), autotools-dev, libc6-dev, libmagickwand-dev, libniftylog-dev, libniftyled-dev
 Standards-Version: 3.9.4
 Homepage: @PACKAGE_URL@

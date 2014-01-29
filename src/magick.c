@@ -88,6 +88,9 @@ NftResult im_init(struct Ledcat *c)
 
 
         }
+
+	MagickSetAntialias(c->mw, false);
+	MagickSetInterpolateMethod(c->mw, IntegerInterpolatePixel);
 #endif
         return true;
 }

@@ -666,6 +666,9 @@ int main(int argc, char *argv[])
                          * occurs) */
                         led_frame_set_big_endian(frame, _c.is_big_endian);
 
+			/* print raw frame for debugging */
+			led_frame_print_buffer(frame);
+
                         /* fill chain of every hardware from frame */
                         LedHardware *h;
                         for(h = hw; h; h = led_hardware_list_get_next(h))

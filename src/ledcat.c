@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
 
         /* parse prefs-file */
         LedPrefsNode *pnode;
-        if(!(pnode = led_prefs_node_from_file(_c.prefsfile)))
+        if(!(pnode = led_prefs_node_from_file(p, _c.prefsfile)))
         {
                 NFT_LOG(L_ERROR, "Failed to open configfile \"%s\"",
                         _c.prefsfile);

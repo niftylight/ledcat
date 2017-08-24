@@ -427,15 +427,16 @@ int main(int argc, char *argv[])
         led_prefs_node_free(pnode);
 
 		/* get setup dimensions */
-		if(!led_setup_get_dim(s, &width, &height))
+		if(!led_setup_get_dim(s, &width, &height)) {
 				goto m_deinit;
-		
+		}
         /* override value from commandline? */
-        if(_c.width)           
+        if(_c.width) {
                 width = _c.width;
-		if(_c.height)
+		}
+		if(_c.height) {
                 height = _c.height;
-
+		}
         /* validate dimensions */
         if(width <= 0 || height <= 0)
         {
@@ -447,9 +448,9 @@ int main(int argc, char *argv[])
 
 
         /* get first toplevel hardware */
-        if(!(hw = led_setup_get_hardware(s)))
+        if(!(hw = led_setup_get_hardware(s))) {
                 goto m_deinit;
-
+		}
         /* initialize pixel->led mapping */
         if(!led_hardware_list_refresh_mapping(hw))
                 goto m_deinit;

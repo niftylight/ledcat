@@ -1,7 +1,7 @@
 /*
  * ledcat - CLI tool to send greyscale values to LED devices using libniftyled
  * Copyright (C) 2006-2014 Daniel Hiepler <daniel@niftylight.de>
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -57,6 +57,8 @@ struct Ledcat
         char                            pixelformat[1024];
         /** array with filenames to cat */
         char                          **files;
+        /** amount of filenames to cat */
+        size_t                          filecount;
         /** current file descriptor */
         int                             fd;
         /** current stream */
@@ -82,8 +84,8 @@ struct Ledcat
         StorageType                     storage;
         /** ImageMagick wand */
         MagickWand                     *mw;
-		/** frames sent to LED setup */
-		long long unsigned int          frames_sent;
+        /** frames sent to LED setup */
+        long long unsigned int          frames_sent;
 #endif
 };
 

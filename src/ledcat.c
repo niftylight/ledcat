@@ -115,7 +115,7 @@ static void _print_help(char *name)
 
         /* print loglevels */
         printf("\nValid loglevels:\n\t");
-		nft_log_print_loglevels();
+        nft_log_print_loglevels();
         printf("\n\n");
 }
 
@@ -282,8 +282,7 @@ static NftResult _parse_args(int argc, char *argv[])
 
 
         _c.files = &argv[optind];
-
-
+        _c.filecount = argc - optind;
         return NFT_SUCCESS;
 }
 
@@ -396,6 +395,11 @@ int main(int argc, char *argv[])
                         return EXIT_FAILURE;
                 }
         }
+#else
+        NFT_LOG(
+            L_WARNING,
+             "ImageMagick support not compiled. Only RAW files supported."
+        );
 #endif
 
         /* default result of main() function */
@@ -426,17 +430,17 @@ int main(int argc, char *argv[])
         /* free preferences node */
         led_prefs_node_free(pnode);
 
-		/* get setup dimensions */
-		if(!led_setup_get_dim(s, &width, &height)) {
-				goto m_deinit;
-		}
+        /* get setup dimensions */
+        if(!led_setup_get_dim(s, &width, &height)) {
+                goto m_deinit;
+        }
         /* override value from commandline? */
         if(_c.width) {
                 width = _c.width;
-		}
-		if(_c.height) {
+        }
+        if(_c.height) {
                 height = _c.height;
-		}
+        }
         /* validate dimensions */
         if(width <= 0 || height <= 0)
         {
@@ -450,11 +454,11 @@ int main(int argc, char *argv[])
         /* get first toplevel hardware */
         if(!(hw = led_setup_get_hardware(s))) {
                 goto m_deinit;
-		}
+        }
         /* initialize pixel->led mapping */
         if(!led_hardware_list_refresh_mapping(hw))
                 goto m_deinit;
-	
+
         /* allocate frame (where our pixelbuffer resides) */
         NFT_LOG(L_INFO, "Allocating frame: %dx%d (%s)",
                 width, height, _c.pixelformat);
@@ -545,8 +549,8 @@ int main(int argc, char *argv[])
 
 
         /* walk all files (supplied as commandline arguments) and output them */
-        int filecount;
-        for(filecount = 0; _c.files[filecount]; filecount++)
+        size_t filecount;
+        for(filecount = 0; filecount < _c.filecount; filecount++)
         {
 
                 NFT_LOG(L_DEBUG, "Getting pixels from \"%s\"",
@@ -557,7 +561,7 @@ int main(int argc, char *argv[])
                 CachedFrame *f;
                 bool cached_frame_found;
 
-                if((!_c.no_caching) && 
+                if((!_c.no_caching) &&
                    (f = cache_frame_get(cache, _c.files[filecount])))
                 {
                         /* copy frame to buffer */
@@ -609,7 +613,7 @@ int main(int argc, char *argv[])
                         if(!cached_frame_found)
                         {
 #if HAVE_IMAGEMAGICK == 1
-                                /* use imagemagick to load file if we're not in 
+                                /* use imagemagick to load file if we're not in
                                  * "raw-mode" */
                                 if(!_c.raw)
                                 {
@@ -623,26 +627,26 @@ int main(int argc, char *argv[])
                                 else
                                 {
 #endif
-										/* get frame dimensions */
-										LedFrameCord w,h;
-										if(!led_frame_get_dim(frame, &w, &h))
-										{
-												_c.running = false;
-												break;
-										}
-										
+                                        /* get frame dimensions */
+                                        LedFrameCord w,h;
+                                        if(!led_frame_get_dim(frame, &w, &h))
+                                        {
+                                                _c.running = false;
+                                                break;
+                                        }
+
                                         /* read raw frame */
-										int bytes_read = raw_read_frame
+                                        int bytes_read = raw_read_frame
                                            (&_c.running, buf, _c.fd,
                                             led_pixel_format_get_buffer_size
                                             (led_frame_get_format(frame),
                                              w * h));
-										
+
                                         if(bytes_read < 0)
-										{
-												_c.running = false;
+                                        {
+                                                _c.running = false;
                                                 break;
-										}
+                                        }
 #if HAVE_IMAGEMAGICK == 1
                                 }
 #endif
@@ -667,8 +671,8 @@ int main(int argc, char *argv[])
                          * occurs) */
                         led_frame_set_big_endian(frame, _c.is_big_endian);
 
-			/* print raw frame for debugging */
-			led_frame_print_buffer(frame);
+            /* print raw frame for debugging */
+            led_frame_print_buffer(frame);
 
                         /* fill chain of every hardware from frame */
                         LedHardware *h;
@@ -695,9 +699,9 @@ int main(int argc, char *argv[])
                         NFT_LOG(L_DEBUG, "Showing frame");
                         led_hardware_list_show(hw);
 
-						/* increase framecount */
-						_c.frames_sent++;
-						
+                        /* increase framecount */
+                        _c.frames_sent++;
+
                         /* save time when frame is displayed */
                         if(!led_fps_sample())
                                 break;
@@ -724,7 +728,9 @@ int main(int argc, char *argv[])
                 cached_frame_found = false;
 
                 /* loop endlessly? */
-                if((_c.running) && (!_c.files[filecount + 1]) && _c.do_loop)
+                if((_c.running) &&                  // still running?
+                   _c.do_loop &&                    // do loop?
+                   (filecount+1 >= _c.filecount))   // last file?
                 {
                         /* start over by resetting the for-loop */
                         filecount = -1;
@@ -737,11 +743,11 @@ int main(int argc, char *argv[])
 
 
 m_deinit:
-		NFT_LOG(L_VERBOSE, "[%llu] frames sent", _c.frames_sent);
-		
+        NFT_LOG(L_VERBOSE, "[%llu] frames sent", _c.frames_sent);
+
         /* free frame cache */
-		if(!_c.no_caching)
-        		cache_destroy(cache);
+        if(!_c.no_caching)
+                cache_destroy(cache);
 
         /* free setup */
         led_setup_destroy(s);

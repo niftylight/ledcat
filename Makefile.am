@@ -13,8 +13,7 @@ SUBDIRS = \
 
 
 EXTRA_DIST = \
-	gentoo \
-	debian
+	dist
 
 
 # indent source & header-files

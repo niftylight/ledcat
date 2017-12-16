@@ -46,7 +46,7 @@
 #endif
 
 #if HAVE_IMAGEMAGICK == 1
-#include <wand/MagickWand.h>
+#include <MagickWand/MagickWand.h>
 #endif
 
 #include <unistd.h>
@@ -171,8 +171,8 @@ NftResult im_format(struct Ledcat *c, LedPixelFormat * format)
                 c->storage = CharPixel;
         else if(strncmp(type, "u16", sizeof(type)) == 0)
                 c->storage = ShortPixel;
-        else if(strncmp(type, "u32", sizeof(type)) == 0)
-                c->storage = IntegerPixel;
+/*        else if(strncmp(type, "u32", sizeof(type)) == 0)
+                c->storage = IntegerPixel;*/
         else if(strncmp(type, "u64", sizeof(type)) == 0)
                 c->storage = LongPixel;
         else if(strncmp(type, "double", sizeof(type)) == 0)

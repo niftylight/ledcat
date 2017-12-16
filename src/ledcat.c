@@ -46,7 +46,7 @@
 #endif
 
 #if HAVE_IMAGEMAGICK == 1
-#include <wand/MagickWand.h>
+#include <MagickWand/MagickWand.h>
 #endif
 
 #include <fcntl.h>
